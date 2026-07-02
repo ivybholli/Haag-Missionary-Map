@@ -1,4 +1,7 @@
-// 1. CREATE MAP
+// ============================
+// 1. MAP SETUP
+// ============================
+
 const map = L.map('map').setView([20, 0], 2);
 
 L.tileLayer(
@@ -7,22 +10,72 @@ L.tileLayer(
     attribution: '&copy; OpenStreetMap & CartoDB'
   }
 ).addTo(map);
+
+
+// ============================
+// 2. GOOGLE SHEET URL
+// ============================
+
+const SHEET_URL =
+  "https://docs.google.com/spreadsheets/d/15BJwH_54gL9fWGCtg0FOwF_qYy4mAm7KWN1LVnSBl5w/gviz/tq?tqx=out:csv";
+
+
+// ============================
+// 3. FETCH SHEET DATA
+// ============================
+
+async function loadSheet() {
+  const res = await fetch(SHEET_URL);
+  const text = await res.text();
+  return parseCSV(text);
+}
+
+
+// ============================
+// 4. CSV PARSER
+// ============================
+
+function parseCSV(csv) {
+  const lines = csv.trim().split("\n");
+  const headers = lines[0].split(",");
+
+  return lines.slice(1).map(line => {
+    const values = line.split(",");
+    let obj = {};
+
+    headers.forEach((h, i) => {
+      obj[h.trim()] = values[i];
+    });
+
+    return obj;
+  });
+}
+
+
+// ============================
+// 5. GEOCODING (CITY → LAT/LNG)
+// ============================
+
 async function geocode(location) {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
+  const url =
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
 
   const res = await fetch(url);
   const data = await res.json();
 
-  if (!data.length) {
-    console.log("Not found:", location);
-    return null;
-  }
+  if (!data.length) return null;
 
   return {
     lat: parseFloat(data[0].lat),
     lng: parseFloat(data[0].lon)
   };
 }
+
+
+// ============================
+// 6. COLOR + LABEL RULES
+// ============================
+
 function getColor(sex) {
   return sex === "Female" ? "#ec4899" : "#2563eb";
 }
@@ -32,139 +85,83 @@ function getTitle(sex, name) {
     ? `Sister ${name}`
     : `Elder ${name}`;
 }
-const missionaries = [
-  {
-    name: "Dawn Hollingsworth",
-    sex: "Female",
-    mission: "Maryland Baltimore",
-    city: "Baltimore",
-    state: "MD",
-    country: "USA",
-    languages: "English",
-    start: "01/2019",
-    end: "12/2020",
-    president: "President Smith",
-    spouse: "N/A"
-  }
-];
-async function buildAndRender() {
 
-  for (let m of missionaries) {
 
-    const location = `${m.city}, ${m.state || ""}, ${m.country}`;
+// ============================
+// 7. BUILD MAP FROM SHEET
+// ============================
+
+async function buildMap() {
+
+  const data = await loadSheet();
+
+  for (let m of data) {
+
+    const city = m["Mission City"];
+    const country = m["Mission Country"];
+
+    if (!city || !country) continue;
+
+    const location = `${city}, ${country}`;
 
     const coords = await geocode(location);
 
-    if (coords) {
-      m.lat = coords.lat;
-      m.lng = coords.lng;
-    }
+    if (!coords) continue;
 
-    await new Promise(r => setTimeout(r, 1000)); // prevent blocking
-  }
+    const sex = m["Biological Sex"];
+    const name = m["Missionary Name (First Last) (e.g., Dawn Hollingsworth)"];
 
-  drawMarkers();
-}
-function drawMarkers() {
+    const title = getTitle(sex, name);
+    const color = getColor(sex);
 
-  missionaries.forEach(m => {
+    const popup = `
+      <div style="font-family: Arial; min-width:220px">
 
-    if (!m.lat || !m.lng) return;
+        <h3 style="margin:0">
+          ${title}
+        </h3>
 
-    const color = getColor(m.sex);
-    const title = getTitle(m.sex, m.name);
+        <hr>
 
-    L.circleMarker([m.lat, m.lng], {
-      radius: 7,
-      color,
+        <b>Mission:</b><br>
+        ${m["Official Mission name (Ex: Maryland Baltimore)"]}<br><br>
+
+        <b>Location:</b><br>
+        ${m["Mission City"]}, ${m["Mission State"]}, ${m["Mission Country"]}<br><br>
+
+        <b>Languages:</b><br>
+        ${m["Assigned Language(s)"] || ""}<br><br>
+
+        <b>Service Dates:</b><br>
+        ${m["Start Date (MM/YYYY)"]} – ${m["End Date (MM/YYYY)"]}<br><br>
+
+        <b>Mission President:</b><br>
+        ${m["Mission President Names (Ex: President and Sister Piros; President and Sister Varner)"]}<br><br>
+
+        <b>Spouse:</b><br>
+        ${m["Your Spouse's Name (If Applicable)"] || "N/A"}
+
+      </div>
+    `;
+
+    L.circleMarker([coords.lat, coords.lng], {
+      radius: 6,
+      color: color,
       fillColor: color,
-      fillOpacity: 0.85
+      fillOpacity: 0.85,
+      weight: 2
     })
-    .addTo(map)
-    .bindPopup(`
-      <b>${title}</b><br>
-      ${m.mission}<br><br>
-      ${m.start} – ${m.end}
-    `);
+      .addTo(map)
+      .bindPopup(popup);
 
-  });
-
-}
-
-
-// 2. COLOR + TITLE RULES
-function getColor(sex) {
-  return sex === "Female" ? "#ec4899" : "#2563eb";
-}
-
-function getTitle(sex, name) {
-  return sex === "Female"
-    ? `Sister ${name}`
-    : `Elder ${name}`;
-}
-
-
-
-// 3. DATA (TEMPORARY - will later come from Google Sheets)
-const missionaries = [
-  {
-    name: "Dawn Hollingsworth",
-    sex: "Female",
-    mission: "Maryland Baltimore",
-    city: "Baltimore",
-    country: "USA",
-    languages: "English",
-    start: "01/2019",
-    end: "12/2020",
-    president: "President and Sister Smith",
-    spouse: "N/A",
-    lat: 39.2904,
-    lng: -76.6122
+    // prevent API overload
+    await new Promise(r => setTimeout(r, 1000));
   }
-];
+}
 
 
+// ============================
+// 8. START APP
+// ============================
 
-// 4. ADD MARKERS TO MAP
-missionaries.forEach(m => {
-
-  const color = getColor(m.sex);
-  const title = getTitle(m.sex, m.name);
-
-  const marker = L.circleMarker([m.lat, m.lng], {
-    radius: 7,
-    color: color,
-    fillColor: color,
-    fillOpacity: 0.85,
-    weight: 2
-  }).addTo(map);
-
-  marker.bindPopup(`
-    <div style="font-family: Arial; min-width: 220px">
-
-      <h3 style="margin:0">
-        ${title}
-      </h3>
-
-      <hr>
-
-      <b>Mission:</b><br>
-      ${m.mission}<br><br>
-
-      <b>Service Dates:</b><br>
-      ${m.start} – ${m.end}<br><br>
-
-      <b>Mission President:</b><br>
-      ${m.president}<br><br>
-
-      <b>Languages:</b><br>
-      ${m.languages}<br><br>
-
-      <b>Spouse:</b><br>
-      ${m.spouse}
-
-    </div>
-  `);
-  buildAndRender();
-
-});
+buildMap();
