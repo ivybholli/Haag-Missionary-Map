@@ -110,6 +110,9 @@ function parseCSV(csv) {
 async function buildMap() {
 
   const data = await loadSheet();
+  
+  console.log("RAW DATA LENGTH:", data.length);
+  console.log("FIRST ROW:", data[0]);
 
   console.log("Loaded rows:", data.length);
   console.log("Sample row:", data[0]);
