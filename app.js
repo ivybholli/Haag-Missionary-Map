@@ -39,11 +39,23 @@ function getColor(sex) {
   return sex === "Female" ? "#ec4899" : "#2563eb";
 }
 
-function getTitle(sex, name) {
-  return sex === "Female"
-    ? `Sister ${name}`
-    : `Elder ${name}`;
+function getTitle(sex, name, language) {
+  const lang = TITLE_BY_LANGUAGE[language] || TITLE_BY_LANGUAGE["English"];
+
+  const prefix = sex === "Female" ? lang.sister : lang.elder;
+
+  return `${prefix} ${name}`;
 }
+
+const TITLE_BY_LANGUAGE = {
+  English: { elder: "Elder", sister: "Sister" },
+  Spanish: { elder: "Élder", sister: "Hermana" },
+  French: { elder: "Aîné", sister: "Sœur" },
+  German: { elder: "Ältester", sister: "Schwester" },
+  Italian: { elder: "Anziano", sister: "Sorella" },
+  Portuguese: { elder: "Élder", sister: "Sister" },
+  Japanese: { elder: "Elder", sister: "Sister" }, // often still "Elder"
+};
 
 // =====================
 // GOOGLE SHEET (JSON)
@@ -107,7 +119,8 @@ async function buildMap() {
     const name = m["Missionary Name (First Last) (e.g., Dawn Hollingsworth)"];
 
     const color = getColor(sex);
-    const title = getTitle(sex, name);
+    const language = m["Assigned Language(s)"] || "English";
+    const title = getTitle(sex, name, language);
 
     L.circleMarker([coords.lat, coords.lng], {
       radius: 6,
