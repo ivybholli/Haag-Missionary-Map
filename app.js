@@ -14,11 +14,11 @@ L.tileLayer(
 ).addTo(map);
 
 // =====================
-// GEOCODE
+// GEOCODE (REAL)
 // =====================
 
 async function geocode(location) {
-  const url = "https://docs.google.com/spreadsheets/d/15BJwH_54gL9fWGCtg0FOwF_qYy4mAm7KWN1LVnSBl5w/gviz/tq?tqx=out:json";
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
 
   const res = await fetch(url);
   const data = await res.json();
@@ -46,7 +46,7 @@ function getTitle(sex, name) {
 }
 
 // =====================
-// GOOGLE SHEET (JSON VERSION)
+// GOOGLE SHEET (JSON)
 // =====================
 
 async function loadSheet() {
@@ -88,9 +88,6 @@ async function buildMap() {
     const city = m["Mission City"];
     const country = m["Mission Country"];
 
-    console.log("CITY:", city);
-    console.log("COUNTRY:", country);
-
     if (!city || !country) {
       console.log("SKIPPED ROW (missing city/country)");
       continue;
@@ -100,7 +97,6 @@ async function buildMap() {
     console.log("LOCATION:", location);
 
     const coords = await geocode(location);
-    console.log("COORDS:", coords);
 
     if (!coords) {
       console.log("GEOCODE FAILED:", location);
