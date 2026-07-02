@@ -135,5 +135,3 @@ async function buildMap() {
 // =====================
 // START APP
 // =====================
-
-buildMap();
