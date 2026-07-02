@@ -101,39 +101,54 @@ async function buildMap() {
   console.log("RAW DATA LENGTH:", data.length);
   console.log("FIRST ROW:", data[0]);
 
-  for (let m of data) {
+ for (let m of data) {
 
-    if (!m["Mission City"] || !m["Mission Country"]) continue;
+  // 🔥 ADD THIS FIRST (inspect the row)
+  console.log("ROW OBJECT:", m);
+  console.log("ROW KEYS:", Object.keys(m));
 
-    const location = `${m["Mission City"]}, ${m["Mission Country"]}`;
+  // 🔥 ADD THIS SECOND (check actual values)
+  console.log("CITY:", m["Mission City"]);
+  console.log("COUNTRY:", m["Mission Country"]);
 
-    const coords = await geocode(location);
+for (let m of data) {
 
-    if (!coords) continue;
+  // 🔥 ADD THIS FIRST (inspect the row)
+  console.log("ROW OBJECT:", m);
+  console.log("ROW KEYS:", Object.keys(m));
 
-    const sex = m["Biological Sex"];
-    const name = m["Missionary Name (First Last) (e.g., Dawn Hollingsworth)"];
+  // 🔥 ADD THIS SECOND (check actual values)
+  console.log("CITY:", m["Mission City"]);
+  console.log("COUNTRY:", m["Mission Country"]);
 
-    const color = getColor(sex);
-    const title = getTitle(sex, name);
-
-    L.circleMarker([coords.lat, coords.lng], {
-      radius: 6,
-      color,
-      fillColor: color,
-      fillOpacity: 0.85,
-      weight: 2
-    })
-    .addTo(map)
-    .bindPopup(`
-      <b>${title}</b><br><br>
-      ${m["Official Mission name (Ex: Maryland Baltimore)"] || ""}<br>
-      ${location}<br><br>
-      ${m["Start Date (MM/YYYY)"] || ""} – ${m["End Date (MM/YYYY)"] || ""}
-    `);
-
-    await new Promise(r => setTimeout(r, 800));
+  if (!m["Mission City"] || !m["Mission Country"]) {
+    console.log("SKIPPED ROW (missing city/country)");
+    continue;
   }
+
+  const location = `${m["Mission City"]}, ${m["Mission Country"]}`;
+
+  console.log("LOCATION STRING:", location);
+
+  const coords = await geocode(location);
+
+  console.log("COORDS:", coords);
+
+  if (!coords) {
+    console.log("GEOCODE FAILED:", location);
+    continue;
+  }
+
+  L.circleMarker([coords.lat, coords.lng], {
+    radius: 6,
+    color: "red"
+  }).addTo(map);
+}
+
+  L.circleMarker([coords.lat, coords.lng], {
+    radius: 6,
+    color: "red"
+  }).addTo(map);
 }
 
 
