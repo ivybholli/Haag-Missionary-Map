@@ -1,7 +1,4 @@
-// ============================
-// 1. CREATE MAP
-// ============================
-
+// MAP
 const map = L.map('map').setView([20, 0], 2);
 
 L.tileLayer(
@@ -11,17 +8,7 @@ L.tileLayer(
   }
 ).addTo(map);
 
-
-// ============================
-// 2. GOOGLE SHEET (optional later)
-// ============================
-// const SHEET_URL = "PASTE YOUR SHEET HERE";
-
-
-// ============================
-// 3. GEOCODING
-// ============================
-
+// GEOCODE
 async function geocode(location) {
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
 
@@ -36,11 +23,7 @@ async function geocode(location) {
   };
 }
 
-
-// ============================
-// 4. HELPERS
-// ============================
-
+// HELPERS
 function getColor(sex) {
   return sex === "Female" ? "#ec4899" : "#2563eb";
 }
@@ -51,11 +34,7 @@ function getTitle(sex, name) {
     : `Elder ${name}`;
 }
 
-
-// ============================
-// 5. DATA (KEEP ONLY ONE COPY)
-// ============================
-
+// DATA
 const missionaries = [
   {
     name: "Dawn Hollingsworth",
@@ -72,11 +51,7 @@ const missionaries = [
   }
 ];
 
-
-// ============================
-// 6. BUILD MAP (GEOCODE + DRAW)
-// ============================
-
+// BUILD MAP
 async function buildMap() {
 
   for (let m of missionaries) {
@@ -87,13 +62,10 @@ async function buildMap() {
 
     if (!coords) continue;
 
-    m.lat = coords.lat;
-    m.lng = coords.lng;
-
     const color = getColor(m.sex);
     const title = getTitle(m.sex, m.name);
 
-    L.circleMarker([m.lat, m.lng], {
+    L.circleMarker([coords.lat, coords.lng], {
       radius: 7,
       color,
       fillColor: color,
@@ -101,22 +73,10 @@ async function buildMap() {
       weight: 2
     })
     .addTo(map)
-    .bindPopup(`
-      <b>${title}</b><br><br>
-      <b>Mission:</b> ${m.mission}<br><br>
-      <b>Service:</b> ${m.start} – ${m.end}<br><br>
-      <b>President:</b> ${m.president}<br><br>
-      <b>Languages:</b> ${m.languages}<br><br>
-      <b>Spouse:</b> ${m.spouse}
-    `);
+    .bindPopup(`<b>${title}</b><br>${m.mission}`);
 
-    await new Promise(r => setTimeout(r, 1000)); // avoid rate limits
+    await new Promise(r => setTimeout(r, 1000));
   }
 }
-
-
-// ============================
-// 7. START APP
-// ============================
 
 buildMap();
