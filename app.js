@@ -18,7 +18,7 @@ L.tileLayer(
 // =====================
 
 async function geocode(location) {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
+  const url = "https://docs.google.com/spreadsheets/d/15BJwH_54gL9fWGCtg0FOwF_qYy4mAm7KWN1LVnSBl5w/gviz/tq?tqx=out:json";
 
   const res = await fetch(url);
   const data = await res.json();
