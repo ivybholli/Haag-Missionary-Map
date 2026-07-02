@@ -1,4 +1,3 @@
-
 // =====================
 // MAP SETUP
 // =====================
@@ -57,28 +56,7 @@ const SHEET_URL =
 async function loadSheet() {
   const res = await fetch(SHEET_URL);
   const text = await res.text();
- function parseCSV(csv) {
-  const lines = csv.trim().split("\n");
-
-  const headers = lines[0]
-    .split(",")
-    .map(h => h.replace(/"/g, "").trim());
-
-  return lines.slice(1).map(line => {
-
-    const values = line
-      .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) // handles commas inside quotes
-      .map(v => v.replace(/"/g, "").trim());
-
-    let obj = {};
-
-    headers.forEach((h, i) => {
-      obj[h] = values[i];
-    });
-
-    return obj;
-  });
-}
+  return parseCSV(text);
 }
 
 
@@ -88,12 +66,19 @@ async function loadSheet() {
 
 function parseCSV(csv) {
   const lines = csv.trim().split("\n");
-  const headers = lines[0].split(",").map(h => h.replace(/"/g, "").trim());
+
+  const headers = lines[0]
+    .split(",")
+    .map(h => h.replace(/"/g, "").trim());
 
   return lines.slice(1).map(line => {
-    const values = line.split(",").map(v => v.replace(/"/g, "").trim());
+
+    const values = line
+      .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+      .map(v => v.replace(/"/g, "").trim());
 
     let obj = {};
+
     headers.forEach((h, i) => {
       obj[h] = values[i];
     });
@@ -110,12 +95,9 @@ function parseCSV(csv) {
 async function buildMap() {
 
   const data = await loadSheet();
-  
+
   console.log("RAW DATA LENGTH:", data.length);
   console.log("FIRST ROW:", data[0]);
-
-  console.log("Loaded rows:", data.length);
-  console.log("Sample row:", data[0]);
 
   for (let m of data) {
 
@@ -125,10 +107,7 @@ async function buildMap() {
 
     const coords = await geocode(location);
 
-    if (!coords) {
-      console.log("No coords for:", location);
-      continue;
-    }
+    if (!coords) continue;
 
     const sex = m["Biological Sex"];
     const name = m["Missionary Name (First Last) (e.g., Dawn Hollingsworth)"];
@@ -151,7 +130,7 @@ async function buildMap() {
       ${m["Start Date (MM/YYYY)"] || ""} – ${m["End Date (MM/YYYY)"] || ""}
     `);
 
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, 800));
   }
 }
 
@@ -159,3 +138,5 @@ async function buildMap() {
 // =====================
 // START APP
 // =====================
+
+buildMap();
