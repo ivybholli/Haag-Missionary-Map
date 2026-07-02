@@ -56,11 +56,28 @@ const SHEET_URL =
   "https://docs.google.com/spreadsheets/d/15BJwH_54gL9fWGCtg0FOwF_qYy4mAm7KWN1LVnSBl5w/gviz/tq?tqx=out:csv";
 
 async function loadSheet() {
-  const res = await fetch(SHEET_URL);
-  const text = await res.text();
-  return parseCSV(text);
-}
 
+  const url =
+    "https://docs.google.com/spreadsheets/d/15BJwH_54gL9fWGCtg0FOwF_qYy4mAm7KWN1LVnSBl5w/gviz/tq?tqx=out:json";
+
+  const res = await fetch(url);
+  const text = await res.text();
+
+  // clean Google wrapper
+  const json = JSON.parse(
+    text.substring(47).slice(0, -2)
+  );
+
+  const cols = json.table.cols.map(c => c.label);
+
+  return json.table.rows.map(row => {
+    let obj = {};
+    row.c.forEach((cell, i) => {
+      obj[cols[i]] = cell ? cell.v : "";
+    });
+    return obj;
+  });
+}
 
 // =====================
 // CSV PARSER
