@@ -161,16 +161,14 @@ input[type="checkbox"] {
 
 .info-card {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-40%, -50%);
+  left: 390px;
+  top: 90px;
   background: white;
-  border-radius: 24px;
-  padding: 30px 34px;
-  min-width: 340px;
-  max-width: 420px;
+  border-radius: 14px;
+  padding: 16px 18px;
+  width: 250px;
   z-index: 2000;
-  box-shadow: 0 12px 35px rgba(0,0,0,.25);
+  box-shadow: 0 8px 24px rgba(0,0,0,.22);
   text-align: center;
 }
 
@@ -180,66 +178,67 @@ input[type="checkbox"] {
 
 .close-card {
   position: absolute;
-  right: 18px;
-  top: 14px;
+  right: 10px;
+  top: 6px;
   border: none;
   background: transparent;
-  font-size: 34px;
+  font-size: 24px;
   color: #999;
   cursor: pointer;
 }
 
 .info-card h2 {
-  margin: 10px 28px 18px;
+  margin: 8px 20px 10px;
   color: #e44b88;
-  font-size: 30px;
+  font-size: 20px;
   line-height: 1.15;
 }
 
 .card-divider {
   height: 1px;
   background: #ddd;
-  margin: 18px 0;
+  margin: 10px 0;
 }
 
-.card-location {
+.card-mission {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.card-location-small {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .flag-img {
-  width: 74px;
-  height: auto;
+  width: 42px;
   border-radius: 3px;
   box-shadow: 0 1px 4px rgba(0,0,0,.18);
 }
 
 .flag-placeholder {
-  font-size: 52px;
-}
-
-.card-country {
   font-size: 34px;
-  font-weight: 700;
-  line-height: 1;
 }
 
-.card-city {
-  font-size: 22px;
-  color: #555;
-  margin-top: 5px;
+.card-place {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .card-dates {
-  font-size: 21px;
+  font-size: 15px;
   color: #444;
 }
 
 .card-spouse {
-  margin-top: 18px;
-  font-size: 18px;
+  margin-top: 10px;
+  font-size: 14px;
   color: #555;
   font-style: italic;
 }
