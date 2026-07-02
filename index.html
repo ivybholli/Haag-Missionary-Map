@@ -1,65 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Haag Missionary Map</title>
+  <meta charset="utf-8" />
+  <title>Missionary Map</title>
 
   <!-- Leaflet CSS -->
   <link
     rel="stylesheet"
-    href="https://unpkg.com/leaflet/dist/leaflet.css"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   />
 
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
 </head>
 
 <body>
-
-<div class="container">
-
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-
-    <h1>🌍 Haag Missionary Map</h1>
-
-    <div class="card">
-      <h3>Statistics</h3>
-      <p>Total Missionaries: --</p>
-      <p>Countries Served: --</p>
-    </div>
-
-    <div class="card">
-      <h3>Legend</h3>
-      <p>🔵 Elders</p>
-      <p>🩷 Sisters</p>
-    </div>
-
-    <div class="card">
-      <h3>Filters</h3>
-
-      <label><input type="checkbox" checked> Elders</label>
-      <br><br>
-
-      <label><input type="checkbox" checked> Sisters</label>
-      <br><br>
-
-      <label><input type="checkbox" checked> Current Missionaries</label>
-
-    </div>
-
-  </div>
-
-  <!-- MAP -->
   <div id="map"></div>
 
-</div>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<!-- YOUR APP -->
-<script src="app.js"></script>
-
+  <!-- Your JS file -->
+  <script src="app.js"></script>
 </body>
 </html>
