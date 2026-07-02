@@ -7,7 +7,89 @@ L.tileLayer(
     attribution: '&copy; OpenStreetMap & CartoDB'
   }
 ).addTo(map);
+async function geocode(location) {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
 
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if (!data.length) {
+    console.log("Not found:", location);
+    return null;
+  }
+
+  return {
+    lat: parseFloat(data[0].lat),
+    lng: parseFloat(data[0].lon)
+  };
+}
+function getColor(sex) {
+  return sex === "Female" ? "#ec4899" : "#2563eb";
+}
+
+function getTitle(sex, name) {
+  return sex === "Female"
+    ? `Sister ${name}`
+    : `Elder ${name}`;
+}
+const missionaries = [
+  {
+    name: "Dawn Hollingsworth",
+    sex: "Female",
+    mission: "Maryland Baltimore",
+    city: "Baltimore",
+    state: "MD",
+    country: "USA",
+    languages: "English",
+    start: "01/2019",
+    end: "12/2020",
+    president: "President Smith",
+    spouse: "N/A"
+  }
+];
+async function buildAndRender() {
+
+  for (let m of missionaries) {
+
+    const location = `${m.city}, ${m.state || ""}, ${m.country}`;
+
+    const coords = await geocode(location);
+
+    if (coords) {
+      m.lat = coords.lat;
+      m.lng = coords.lng;
+    }
+
+    await new Promise(r => setTimeout(r, 1000)); // prevent blocking
+  }
+
+  drawMarkers();
+}
+function drawMarkers() {
+
+  missionaries.forEach(m => {
+
+    if (!m.lat || !m.lng) return;
+
+    const color = getColor(m.sex);
+    const title = getTitle(m.sex, m.name);
+
+    L.circleMarker([m.lat, m.lng], {
+      radius: 7,
+      color,
+      fillColor: color,
+      fillOpacity: 0.85
+    })
+    .addTo(map)
+    .bindPopup(`
+      <b>${title}</b><br>
+      ${m.mission}<br><br>
+      ${m.start} – ${m.end}
+    `);
+
+  });
+
+}
 
 
 // 2. COLOR + TITLE RULES
@@ -83,5 +165,6 @@ missionaries.forEach(m => {
 
     </div>
   `);
+  buildAndRender();
 
 });
