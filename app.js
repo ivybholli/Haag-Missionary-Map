@@ -118,9 +118,22 @@ async function loadSheet() {
   });
 }
 
+function formatMissionLocation(country, state, city) {
+  const usNames = ["United States", "USA", "US", "U.S.", "U.S.A."];
+
+  if (usNames.includes(country)) {
+    return `${state || ""}<br>${city || ""}`;
+  }
+
+  return `${country || ""}<br>${city || ""}`;
+}
+
 function showInfoCard(m) {
   const country = m["Mission Country"];
+  const state = m["Mission State"];
   const city = m["Mission City"];
+  const mission = m["Official Mission name (Ex: Maryland Baltimore)"];
+
   const sex = m["Biological Sex"];
   const name = m["Missionary Name (First Last) (e.g., Dawn Hollingsworth)"];
   const language = m["Assigned Language(s)"];
@@ -139,15 +152,14 @@ function showInfoCard(m) {
 
     <div class="card-divider"></div>
 
-    <div class="card-location">
+    <div class="card-mission">${mission || ""}</div>
+
+    <div class="card-location-small">
       ${getFlagImage(country)}
-      <div>
-        <div class="card-country">${country}</div>
-        <div class="card-city">${city}</div>
+      <div class="card-place">
+        ${formatMissionLocation(country, state, city)}
       </div>
     </div>
-
-    <div class="card-divider"></div>
 
     <div class="card-dates">
       ${m["Start Date (MM/YYYY)"] || ""} – ${m["End Date (MM/YYYY)"] || ""}
@@ -196,10 +208,18 @@ async function buildMap() {
       weight: 2
     }).addTo(map);
 
-    marker.on("click", () => {
-      showInfoCard(m);
-      map.panTo([coords.lat, coords.lng]);
-    });
+   marker.on("click", () => {
+  showInfoCard(m);
+  map.panTo([coords.lat, coords.lng]);
+});
+
+marker.on("mouseover", () => {
+  showInfoCard(m);
+});
+
+marker.on("mouseout", () => {
+  // keeps card open if they clicked; leave blank on purpose
+});
 
     allMarkers.push({ marker, sex });
     bounds.push([coords.lat, coords.lng]);
