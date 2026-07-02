@@ -57,7 +57,28 @@ const SHEET_URL =
 async function loadSheet() {
   const res = await fetch(SHEET_URL);
   const text = await res.text();
-  return parseCSV(text);
+ function parseCSV(csv) {
+  const lines = csv.trim().split("\n");
+
+  const headers = lines[0]
+    .split(",")
+    .map(h => h.replace(/"/g, "").trim());
+
+  return lines.slice(1).map(line => {
+
+    const values = line
+      .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) // handles commas inside quotes
+      .map(v => v.replace(/"/g, "").trim());
+
+    let obj = {};
+
+    headers.forEach((h, i) => {
+      obj[h] = values[i];
+    });
+
+    return obj;
+  });
+}
 }
 
 
