@@ -35,45 +35,61 @@ function getTitle(sex, name) {
 }
 
 // DATA
-const missionaries = [
-  {
-    name: "Dawn Hollingsworth",
-    sex: "Female",
-    mission: "Maryland Baltimore",
-    city: "Baltimore",
-    state: "MD",
-    country: "USA",
-    languages: "English",
-    start: "01/2019",
-    end: "12/2020",
-    president: "President Smith",
-    spouse: "N/A"
-  }
-];
+const SHEET_URL =
+  "https://docs.google.com/spreadsheets/d/15BJwH_54gL9fWGCtg0FOwF_qYy4mAm7KWN1LVnSBl5w/gviz/tq?tqx=out:csv";
+
+async function loadSheet() {
+  const res = await fetch(SHEET_URL);
+  const text = await res.text();
+  return parseCSV(text);
+}
+
+function parseCSV(csv) {
+  const lines = csv.trim().split("\n");
+  const headers = lines[0].split(",");
+
+  return lines.slice(1).map(line => {
+    const values = line.split(",");
+    let obj = {};
+
+    headers.forEach((h, i) => {
+      obj[h.trim()] = values[i];
+    });
+
+    return obj;
+  });
+}
 
 // BUILD MAP
 async function buildMap() {
 
-  for (let m of missionaries) {
+  const data = await loadSheet();
 
-    const location = `${m.city}, ${m.state || ""}, ${m.country}`;
+  for (let m of data) {
+
+    const location = `${m["Mission City"]}, ${m["Mission Country"]}`;
 
     const coords = await geocode(location);
-
     if (!coords) continue;
 
-    const color = getColor(m.sex);
-    const title = getTitle(m.sex, m.name);
+    const sex = m["Biological Sex"];
+    const name = m["Missionary Name (First Last) (e.g., Dawn Hollingsworth)"];
+
+    const color = getColor(sex);
+    const title = getTitle(sex, name);
 
     L.circleMarker([coords.lat, coords.lng], {
-      radius: 7,
+      radius: 6,
       color,
       fillColor: color,
-      fillOpacity: 0.85,
-      weight: 2
+      fillOpacity: 0.85
     })
     .addTo(map)
-    .bindPopup(`<b>${title}</b><br>${m.mission}`);
+    .bindPopup(`
+      <b>${title}</b><br>
+      ${m["Official Mission name (Ex: Maryland Baltimore)"]}<br>
+      ${m["Start Date (MM/YYYY)"]} – ${m["End Date (MM/YYYY)"]}
+    `);
 
     await new Promise(r => setTimeout(r, 1000));
   }
