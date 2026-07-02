@@ -135,6 +135,12 @@ async function buildMap() {
 // START
 // =====================
 
-console.log("FIRST ROW KEYS:", Object.keys(data[0]));
+async function buildMap() {
+  const data = await loadSheet();
 
-buildMap();
+  console.log(data); // ✅ ONLY HERE
+
+  for (let m of data) {
+    ...
+  }
+}
