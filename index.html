@@ -1,82 +1,66 @@
-// MAP
-const map = L.map('map').setView([20, 0], 2);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Haag Missionary Map</title>
 
-L.tileLayer(
-  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  {
-    attribution: '&copy; OpenStreetMap & CartoDB'
-  }
-).addTo(map);
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
 
-// GEOCODE
-async function geocode(location) {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
+  <!-- Your CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
 
-  const res = await fetch(url);
-  const data = await res.json();
+<body>
 
-  if (!data.length) return null;
+<div class="container">
 
-  return {
-    lat: parseFloat(data[0].lat),
-    lng: parseFloat(data[0].lon)
-  };
-}
+  <!-- SIDEBAR -->
+  <div class="sidebar">
 
-// HELPERS
-function getColor(sex) {
-  return sex === "Female" ? "#ec4899" : "#2563eb";
-}
+    <h1>🌍 Haag Missionary Map</h1>
 
-function getTitle(sex, name) {
-  return sex === "Female"
-    ? `Sister ${name}`
-    : `Elder ${name}`;
-}
+    <div class="card">
+      <h3>Statistics</h3>
+      <p>Total Missionaries: --</p>
+      <p>Countries Served: --</p>
+    </div>
 
-// DATA
-const missionaries = [
-  {
-    name: "Dawn Hollingsworth",
-    sex: "Female",
-    mission: "Maryland Baltimore",
-    city: "Baltimore",
-    state: "MD",
-    country: "USA",
-    languages: "English",
-    start: "01/2019",
-    end: "12/2020",
-    president: "President Smith",
-    spouse: "N/A"
-  }
-];
+    <div class="card">
+      <h3>Legend</h3>
+      <p>🔵 Elders</p>
+      <p>🩷 Sisters</p>
+    </div>
 
-// BUILD MAP
-async function buildMap() {
+    <div class="card">
+      <h3>Filters</h3>
 
-  for (let m of missionaries) {
+      <label><input type="checkbox" checked> Elders</label>
+      <br><br>
 
-    const location = `${m.city}, ${m.state || ""}, ${m.country}`;
+      <label><input type="checkbox" checked> Sisters</label>
+      <br><br>
 
-    const coords = await geocode(location);
+      <label><input type="checkbox" checked> Current Missionaries</label>
 
-    if (!coords) continue;
+    </div>
 
-    const color = getColor(m.sex);
-    const title = getTitle(m.sex, m.name);
+  </div>
 
-    L.circleMarker([coords.lat, coords.lng], {
-      radius: 7,
-      color,
-      fillColor: color,
-      fillOpacity: 0.85,
-      weight: 2
-    })
-    .addTo(map)
-    .bindPopup(`<b>${title}</b><br>${m.mission}`);
+  <!-- MAP -->
+  <div id="map"></div>
 
-    await new Promise(r => setTimeout(r, 1000));
-  }
-}
+</div>
 
-buildMap();
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- Your JS -->
+<script src="app.js"></script>
+
+</body>
+</html>
