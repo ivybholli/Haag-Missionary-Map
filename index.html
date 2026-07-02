@@ -16,14 +16,45 @@
 
 <body>
 
-  <!-- This is where the map will go -->
+<div class="container">
+
+  <div class="sidebar">
+    <h1>🌍 Family Mission Map</h1>
+
+    <div class="card">
+      <h3>Statistics</h3>
+      <p>Total Missionaries: 127</p>
+      <p>Countries Served: 42</p>
+    </div>
+
+    <div class="card">
+      <h3>Filters</h3>
+
+      <label>
+        <input type="checkbox" checked>
+        Elders
+      </label>
+
+      <br><br>
+
+      <label>
+        <input type="checkbox" checked>
+        Sisters
+      </label>
+
+      <br><br>
+
+      <label>
+        <input type="checkbox" checked>
+        Current Missionaries
+      </label>
+    </div>
+
+  </div>
+
   <div id="map"></div>
 
-  <!-- Leaflet JS (map engine) -->
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-  <!-- Your JavaScript -->
-  <script src="app.js"></script>
+</div>
 
 </body>
 </html>
