@@ -1,9 +1,17 @@
 console.log("🔥 APP.JS LOADED");
 
+/* =====================================================
+   GOOGLE SHEET SETTINGS
+===================================================== */
+
 const SHEET_ID = "15BJwH_54gL9fWGCtg0FOwF_qYy4mAm7KWN1LVnSBl5w";
 
 const MISSIONARY_SHEET_NAME = "Form Responses 1";
 const COORDINATES_SHEET_NAME = "Coordinates";
+
+/* =====================================================
+   MAP SETUP
+===================================================== */
 
 const map = L.map("map", {
   zoomControl: true,
@@ -17,18 +25,30 @@ L.tileLayer(
   }
 ).addTo(map);
 
+/* =====================================================
+   GLOBAL STATE
+===================================================== */
+
 let allMissionaries = [];
 let allMarkers = [];
 
+/* =====================================================
+   LANGUAGE TITLES
+===================================================== */
+
 const TITLE_BY_LANGUAGE = {
   English: { elder: "Elder", sister: "Sister" },
-  Spanish: { elder: "Elder", sister: "Hermana" },
-  Italian: { elder: "Elder", sister: "Sorella" },
-  French: { elder: "Elder", sister: "Sœur" },
-  German: { elder: "Elder", sister: "Sister" },
-  Portuguese: { elder: "Elder", sister: "Sister" },
-  Danish: { elder: "Elder", sister: "Søster" }
+  Spanish: { elder: "Élder", sister: "Hermana" },
+  Italian: { elder: "Anziano", sister: "Sorella" },
+  French: { elder: "Aîné", sister: "Sœur" },
+  German: { elder: "Ältester", sister: "Schwester" },
+  Portuguese: { elder: "Élder", sister: "Irmã" },
+  Danish: { elder: "Ældste", sister: "Søster" }
 };
+
+/* =====================================================
+   CONTINENTS
+===================================================== */
 
 const CONTINENTS = {
   "United States": "North America",
@@ -53,6 +73,10 @@ const CONTINENTS = {
   Australia: "Oceania",
   "New Zealand": "Oceania"
 };
+
+/* =====================================================
+   BASIC HELPERS
+===================================================== */
 
 function normalize(value) {
   return String(value || "")
@@ -102,6 +126,10 @@ async function loadSheet(sheetName) {
   });
 }
 
+/* =====================================================
+   COLUMN GETTERS
+===================================================== */
+
 function getName(m) {
   return getValue(m, [
     "Missionary Name (First Last) (e.g., Dawn Hollingsworth)",
@@ -116,7 +144,11 @@ function getSex(m) {
 }
 
 function getRelation(m) {
-  return getValue(m, ["Who is your Haag relation?", "Haag relation", "Relation"]);
+  return getValue(m, [
+    "Who is your Haag relation?",
+    "Haag relation",
+    "Relation"
+  ]);
 }
 
 function getRelationshipToElvaDarrell(m) {
@@ -133,6 +165,10 @@ function getMissionName(m) {
     "Official Mission name",
     "Mission Name"
   ]);
+}
+
+function getCity(m) {
+  return getValue(m, ["City", "Mission City"]);
 }
 
 function getState(m) {
@@ -175,232 +211,481 @@ function getSpouse(m) {
     "Spouse Name"
   ]);
 }
-
-function getTitle(sex, name, language) {
-  const firstLanguage = String(language || "English").split(",")[0].trim();
-  const titles = TITLE_BY_LANGUAGE[firstLanguage] || TITLE_BY_LANGUAGE.English;
-  const prefix = sex === "Female" ? titles.sister : titles.elder;
-  return `${prefix} ${name || ""}`;
-}
-
-function getColor(sex) {
-  return sex === "Female" ? "#ec4899" : "#2563eb";
-}
-
-function parseMissionEndDate(value) {
-  if (!value) return null;
-
-  const parts = String(value).trim().split("/");
-  if (parts.length !== 2) return null;
-
-  const month = Number(parts[0]);
-  const year = Number(parts[1]);
-
-  if (!month || !year) return null;
-
-  return new Date(year, month, 0);
-}
-
-function isCurrentlyServing(m) {
-  const endDate = parseMissionEndDate(getEndDate(m));
-  if (!endDate) return false;
-
-  return endDate >= new Date();
-}
-
-function isInLaw(m) {
-  return normalize(getRelationshipToElvaDarrell(m)).includes("in-law");
-}
-
-function getMarkerShape(m) {
-  if (isInLaw(m)) return "heart";
-  if (isCurrentlyServing(m)) return "star";
-  return "circle";
-}
-
-function createIcon(shape, color, count = null) {
-  let svgShape;
-
-  if (shape === "star") {
-    svgShape = `<path d="M12 2 L15 8.5 L22 9.2 L16.7 14 L18.2 21 L12 17.3 L5.8 21 L7.3 14 L2 9.2 L9 8.5 Z" />`;
-  } else if (shape === "heart") {
-    svgShape = `<path d="M12 21 C7.5 17.1 3 14.1 3 8.7 C3 5.6 5.4 3.5 8.1 3.5 C9.8 3.5 11.1 4.4 12 5.7 C12.9 4.4 14.2 3.5 15.9 3.5 C18.6 3.5 21 5.6 21 8.7 C21 14.1 16.5 17.1 12 21 Z" />`;
-  } else {
-    svgShape = `<circle cx="12" cy="12" r="8" />`;
-  }
-
-  const countBadge = count && count > 1
-    ? `<div class="marker-count">${count}</div>`
-    : "";
-
-  return L.divIcon({
-    className: "custom-marker",
-    html: `
-      <div class="marker-wrap">
-        <svg width="30" height="30" viewBox="0 0 24 24">
-          <g fill="${color}" stroke="white" stroke-width="2">
-            ${svgShape}
-          </g>
-        </svg>
-        ${countBadge}
-      </div>
-    `,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15]
-  });
-}
-
-function getFlagImage(country, state) {
-  const cleanCountry = String(country || "").replace(/\s+/g, " ").trim();
-  const cleanState = String(state || "").replace(/\s+/g, " ").trim();
-
-  console.log("FLAG CHECK:", { cleanCountry, cleanState });
-
-  const usStateFlags = {
-    Maryland: "https://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Maryland.svg",
-    Louisiana: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Flag_of_Louisiana.svg",
-    Utah: "https://upload.wikimedia.org/wikipedia/commons/f/f6/Flag_of_Utah.svg",
-    Ohio: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Flag_of_Ohio.svg",
-    Washington: "https://upload.wikimedia.org/wikipedia/commons/5/54/Flag_of_Washington.svg",
-    Oregon: "https://upload.wikimedia.org/wikipedia/commons/b/b9/Flag_of_Oregon.svg",
-    Connecticut: "https://upload.wikimedia.org/wikipedia/commons/9/96/Flag_of_Connecticut.svg"
-  };
-
-  const countryCodes = {
-    "united states": "us",
-    "usa": "us",
-    "us": "us",
-    "brazil": "br",
-    "denmark": "dk",
-    "germany": "de",
-    "italy": "it"
-  };
-
-  if (
-    ["United States", "USA", "US"].includes(cleanCountry) &&
-    usStateFlags[cleanState]
-  ) {
-    return `<img class="flag-img" src="${usStateFlags[cleanState]}" alt="${cleanState} flag">`;
-  }
-
-  const code = countryCodes[cleanCountry.toLowerCase()];
-
-  if (!code) {
-    return `<div class="flag-placeholder">🌍</div>`;
-  }
-
-  return `<img class="flag-img" src="https://flagcdn.com/w80/${code}.png" alt="${cleanCountry} flag">`;
-}
-
-function formatPresidents(presidents) {
-  return String(presidents || "")
-    .split(";")
-    .map(name => name.trim())
-    .filter(Boolean)
-    .join("<br>");
-}
+/* =====================================================
+   DATE HELPERS
+===================================================== */
 
 function formatMissionDate(dateString) {
+
     if (!dateString) return "";
 
     const months = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December"
+        "January","February","March","April","May","June",
+        "July","August","September","October","November","December"
     ];
 
     const parts = String(dateString).split("/");
 
-    if (parts.length !== 2) return dateString;
+    if(parts.length !== 2) return dateString;
 
-    const month = parseInt(parts[0], 10);
-    const year = parts[1];
+    const month = parseInt(parts[0],10);
 
-    if (month < 1 || month > 12) return dateString;
+    if(month < 1 || month > 12) return dateString;
 
-    return `${months[month - 1]} ${year}`;
+    return `${months[month-1]} ${parts[1]}`;
+
 }
- 
-function showInfoCard(missionaries) {
-  const list = Array.isArray(missionaries) ? missionaries : [missionaries];
 
-  if (list.length === 1) {
-    const m = list[0];
+function missionLength(start,end){
 
-    const name = getName(m);
-    const sex = getSex(m);
-    const language = getLanguage(m);
-    const mission = getMissionName(m);
-    const country = getCountry(m);
-    const state = getState(m);
+    if(!start || !end) return "";
+
+    const s = start.split("/");
+    const e = end.split("/");
+
+    if(s.length!==2 || e.length!==2) return "";
+
+    const startDate = new Date(
+        Number(s[1]),
+        Number(s[0])-1
+    );
+
+    const endDate = new Date(
+        Number(e[1]),
+        Number(e[0])-1
+    );
+
+    const months =
+        (endDate.getFullYear()-startDate.getFullYear())*12 +
+        (endDate.getMonth()-startDate.getMonth()) + 1;
+
+    return `${months} month${months===1?"":"s"}`;
+
+}
+
+function isCurrentlyServing(m){
+
+    const end = getEndDate(m);
+
+    if(!end) return false;
+
+    const parts = end.split("/");
+
+    if(parts.length!==2) return false;
+
+    const missionEnd = new Date(
+        Number(parts[1]),
+        Number(parts[0]),
+        0
+    );
+
+    return missionEnd >= new Date();
+
+}
+
+function formatMissionDates(m){
+
     const start = getStartDate(m);
     const end = getEndDate(m);
-    const presidents = getPresidents(m);
-    const spouse = getSpouse(m);
 
-    document.getElementById("infoCardContent").innerHTML = `
+    if(isCurrentlyServing(m)){
+
+        return `
+            <div class="card-date-main">
+                ${formatMissionDate(start)} – Present
+            </div>
+
+            <div class="currently-serving">
+                ✓ Currently Serving
+            </div>
+        `;
+
+    }
+
+    return `
+        <div class="card-date-main">
+            ${formatMissionDate(start)} – ${formatMissionDate(end)}
+        </div>
+
+        <div class="mission-length">
+            ${missionLength(start,end)}
+        </div>
+    `;
+
+}
+
+/* =====================================================
+   MISSION PRESIDENTS
+===================================================== */
+
+function formatPresidents(text){
+
+    if(!text) return "";
+
+    return text
+        .split(";")
+        .map(x=>x.trim())
+        .filter(Boolean)
+        .join("<br>");
+
+}
+
+/* =====================================================
+   TITLES
+===================================================== */
+
+function getTitle(sex,name,language){
+
+    const lang =
+        String(language || "English")
+        .split(",")[0]
+        .trim();
+
+    const titles =
+        TITLE_BY_LANGUAGE[lang] ||
+        TITLE_BY_LANGUAGE.English;
+
+    const prefix =
+        sex==="Female"
+            ? titles.sister
+            : titles.elder;
+
+    return `${prefix} ${name}`;
+
+}
+
+/* =====================================================
+   COLORS
+===================================================== */
+
+function getColor(sex){
+
+    return sex==="Female"
+        ? "#ec4899"
+        : "#2563eb";
+
+}
+
+/* =====================================================
+   RELATIONSHIPS
+===================================================== */
+
+function isInLaw(m){
+
+    return normalize(
+        getRelationshipToElvaDarrell(m)
+    ).includes("in-law");
+
+}
+
+/* =====================================================
+   FLAG IMAGES
+===================================================== */
+
+function getFlagImage(country,state){
+
+    country = String(country||"").trim();
+    state = String(state||"").trim();
+
+    const countryCodes = {
+
+        "United States":"us",
+        "USA":"us",
+        "US":"us",
+
+        "Brazil":"br",
+
+        "Italy":"it",
+
+        "Germany":"de",
+
+        "France":"fr",
+
+        "Spain":"es",
+
+        "Denmark":"dk",
+
+        "Mexico":"mx",
+
+        "Canada":"ca",
+
+        "England":"gb",
+
+        "United Kingdom":"gb",
+
+        "Japan":"jp",
+
+        "Australia":"au",
+
+        "New Zealand":"nz",
+
+        "Argentina":"ar",
+
+        "Chile":"cl",
+
+        "Peru":"pe",
+
+        "Colombia":"co",
+
+        "Philippines":"ph"
+
+    };
+
+    const usStateFlags={
+
+        "Maryland":"maryland",
+        "Louisiana":"louisiana",
+        "Utah":"utah",
+        "Ohio":"ohio",
+        "Washington":"washington",
+        "Oregon":"oregon",
+        "Connecticut":"connecticut"
+
+    };
+
+    if(
+        ["United States","USA","US"].includes(country)
+        &&
+        usStateFlags[state]
+    ){
+
+        return `
+        <img
+            class="flag-img"
+            src="https://upload.wikimedia.org/wikipedia/commons/${getUSFlagPath(state)}"
+            alt="${state}">
+        `;
+
+    }
+
+    const code = countryCodes[country];
+
+    if(!code){
+
+        return `<div class="flag-placeholder">🌍</div>`;
+
+    }
+
+    return `
+        <img
+            class="flag-img"
+            src="https://flagcdn.com/w80/${code}.png"
+            alt="${country}">
+    `;
+
+}
+
+/* =====================================================
+   US STATE FLAG PATHS
+===================================================== */
+
+function getUSFlagPath(state){
+
+    const flags={
+
+        Maryland:"a/a0/Flag_of_Maryland.svg",
+
+        Louisiana:"e/e0/Flag_of_Louisiana.svg",
+
+        Utah:"f/f6/Flag_of_Utah.svg",
+
+        Ohio:"4/4c/Flag_of_Ohio.svg",
+
+        Washington:"5/54/Flag_of_Washington.svg",
+
+        Oregon:"b/b9/Flag_of_Oregon.svg",
+
+        Connecticut:"9/96/Flag_of_Connecticut.svg"
+
+    };
+
+    return flags[state];
+
+}
+/* =====================================================
+   MARKERS — OPTION B
+   Normal: dot
+   Current: dot with checkmark
+   In-law: heart
+   Multiple: numbered dot
+===================================================== */
+
+function createMarkerIcon(group) {
+  const count = group.length;
+  const first = group[0];
+
+  const hasMale = group.some(m => getSex(m) !== "Female");
+  const hasFemale = group.some(m => getSex(m) === "Female");
+  const hasCurrent = group.some(m => isCurrentlyServing(m));
+  const hasInLaw = group.some(m => isInLaw(m));
+
+  let color = getColor(getSex(first));
+
+  if (hasMale && hasFemale) {
+    color = "#7c3aed";
+  }
+
+  let inner = "";
+
+  if (count > 1) {
+    inner = `<span class="marker-number">${count}</span>`;
+  } else if (hasCurrent) {
+    inner = `<span class="marker-check">✓</span>`;
+  }
+
+  const shapeClass = hasInLaw && count === 1 ? "mission-marker heart-marker" : "mission-marker dot-marker";
+
+  return L.divIcon({
+    className: "custom-marker",
+    html: `
+      <div class="${shapeClass}" style="--marker-color:${color}">
+        ${inner}
+      </div>
+    `,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -12]
+  });
+}
+
+/* =====================================================
+   POPUP HTML
+===================================================== */
+
+function missionaryPopupHtml(m) {
+  const name = getName(m);
+  const sex = getSex(m);
+  const language = getLanguage(m);
+  const mission = getMissionName(m);
+  const country = getCountry(m);
+  const state = getState(m);
+  const presidents = getPresidents(m);
+  const spouse = getSpouse(m);
+
+  return `
+    <div class="leaflet-mission-popup">
       <h2>${getTitle(sex, name, language)}</h2>
 
       <div class="card-divider"></div>
 
       <div class="card-location-small">
         ${getFlagImage(country, state)}
-        <div class="card-mission">${mission || ""}</div>
-        <div class="popup-language">${getLanguage(m)}</div>
+        <div>
+          <div class="card-mission">${mission || ""}</div>
+          ${language ? `<div class="popup-language">${language}</div>` : ""}
+        </div>
       </div>
 
       <div class="card-dates">
-        ${formatMissionDate(start)}
-        –
-        ${formatMissionDate(end)}
+        ${formatMissionDates(m)}
       </div>
 
       ${presidents ? `<div class="card-presidents">${formatPresidents(presidents)}</div>` : ""}
 
       ${spouse ? `<div class="card-spouse">Married to ${spouse}</div>` : ""}
-    `;
-  } else {
-    const first = list[0];
-    const mission = getMissionName(first);
-    const country = getCountry(first);
-    const state = getState(first);
+    </div>
+  `;
+}
 
-    document.getElementById("infoCardContent").innerHTML = `
+function groupPopupHtml(group) {
+  const first = group[0];
+  const mission = getMissionName(first);
+  const country = getCountry(first);
+  const state = getState(first);
+  const languageSet = new Set(
+    group
+      .map(m => getLanguage(m))
+      .filter(Boolean)
+  );
+
+  return `
+    <div class="leaflet-mission-popup">
       <h2>${mission}</h2>
 
       <div class="card-divider"></div>
 
       <div class="card-location-small">
         ${getFlagImage(country, state)}
-        <div class="card-mission">${list.length} missionaries served here</div>
+        <div>
+          <div class="card-mission">${group.length} missionaries served here</div>
+          ${
+            languageSet.size
+              ? `<div class="popup-language">${Array.from(languageSet).join(", ")}</div>`
+              : ""
+          }
+        </div>
       </div>
 
       <div class="missionary-list">
-        ${list.map(m => `
-          <div class="missionary-list-item">
+        ${group.map((m, index) => `
+          <button
+            type="button"
+            class="missionary-list-item"
+            data-index="${index}"
+          >
             <strong>${getTitle(getSex(m), getName(m), getLanguage(m))}</strong>
-            <span>
-              ${formatMissionDate(getStartDate(m))}
-              –
-              ${formatMissionDate(getEndDate(m))}
-            </span>
-          </div>
+            <span>${formatMissionDate(getStartDate(m))} – ${
+              isCurrentlyServing(m) ? "Present" : formatMissionDate(getEndDate(m))
+            }</span>
+          </button>
         `).join("")}
       </div>
-    `;
+    </div>
+  `;
+}
+
+/* =====================================================
+   POPUP EVENTS
+===================================================== */
+
+function attachPopupEvents(marker, group) {
+  marker.on("popupopen", event => {
+    const popupEl = event.popup.getElement();
+    if (!popupEl) return;
+
+    popupEl.querySelectorAll(".missionary-list-item").forEach(button => {
+      button.addEventListener("click", () => {
+        const index = Number(button.dataset.index);
+        const missionary = group[index];
+
+        marker.setPopupContent(missionaryPopupHtml(missionary));
+        marker.openPopup();
+      });
+    });
+  });
+}
+
+function bindMarkerPopup(marker, group) {
+  if (group.length === 1) {
+    marker.bindPopup(missionaryPopupHtml(group[0]), {
+      closeButton: true,
+      autoPan: true,
+      maxWidth: 360,
+      className: "haag-leaflet-popup"
+    });
+  } else {
+    marker.bindPopup(groupPopupHtml(group), {
+      closeButton: true,
+      autoPan: true,
+      maxWidth: 380,
+      className: "haag-leaflet-popup"
+    });
+
+    attachPopupEvents(marker, group);
   }
 
-  document.getElementById("infoCard").classList.remove("hidden");
+  marker.on("mouseover", () => {
+    marker.openPopup();
+  });
+
+  marker.on("click", () => {
+    marker.openPopup();
+  });
 }
+
+/* =====================================================
+   FILTERS
+===================================================== */
 
 function matchesFamily(m) {
   const selected = document.getElementById("familyFilter").value;
@@ -420,6 +705,9 @@ function matchesSex(m) {
 function getFilteredData() {
   return allMissionaries.filter(m => matchesFamily(m) && matchesSex(m));
 }
+/* =====================================================
+   STATISTICS
+===================================================== */
 
 function updateStats(data) {
   document.getElementById("totalMissionaries").textContent = data.length;
@@ -430,7 +718,8 @@ function updateStats(data) {
   document.getElementById("totalSisters").textContent =
     data.filter(m => getSex(m) === "Female").length;
 
-  const countries = new Set(data.map(m => getCountry(m)).filter(Boolean));
+  document.getElementById("countriesServed").textContent =
+    new Set(data.map(m => getCountry(m)).filter(Boolean)).size;
 
   const languages = new Set();
 
@@ -442,34 +731,42 @@ function updateStats(data) {
       .forEach(lang => languages.add(lang));
   });
 
-  const continents = new Set(
-    data.map(m => CONTINENTS[getCountry(m)]).filter(Boolean)
-  );
-
-  document.getElementById("countriesServed").textContent = countries.size;
   document.getElementById("totalLanguages").textContent = languages.size;
-  document.getElementById("totalContinents").textContent = continents.size;
+
+  document.getElementById("totalContinents").textContent =
+    new Set(data.map(m => CONTINENTS[getCountry(m)]).filter(Boolean)).size;
 }
+
+/* =====================================================
+   MARKER GROUPING
+===================================================== */
 
 function clearMarkers() {
   allMarkers.forEach(marker => map.removeLayer(marker));
   allMarkers = [];
 }
 
-function groupByCoordinates(data) {
+function groupByMission(data) {
   const groups = {};
 
   data.forEach(m => {
     if (!m.coords) return;
 
-    const key = `${m.coords.lat},${m.coords.lng}`;
+    const key = normalize(getMissionName(m));
 
-    if (!groups[key]) groups[key] = [];
+    if (!groups[key]) {
+      groups[key] = [];
+    }
+
     groups[key].push(m);
   });
 
   return Object.values(groups);
 }
+
+/* =====================================================
+   DRAW MAP
+===================================================== */
 
 function drawMarkers() {
   clearMarkers();
@@ -477,38 +774,18 @@ function drawMarkers() {
   const data = getFilteredData();
   updateStats(data);
 
-  const groups = groupByCoordinates(data);
+  const groups = groupByMission(data);
   const bounds = [];
 
   groups.forEach(group => {
     const first = group[0];
     const coords = first.coords;
 
-    let markerColor = getColor(getSex(first));
-    let markerShape = getMarkerShape(first);
-
-    if (group.length > 1) {
-      const hasFemale = group.some(m => getSex(m) === "Female");
-      const hasMale = group.some(m => getSex(m) !== "Female");
-
-      if (hasFemale && !hasMale) markerColor = "#ec4899";
-      if (hasMale && !hasFemale) markerColor = "#2563eb";
-      if (hasFemale && hasMale) markerColor = "#6d28d9";
-
-      if (group.some(m => isCurrentlyServing(m))) markerShape = "star";
-      else if (group.some(m => isInLaw(m))) markerShape = "heart";
-      else markerShape = "circle";
-    }
-
     const marker = L.marker([coords.lat, coords.lng], {
-      icon: createIcon(markerShape, markerColor, group.length)
+      icon: createMarkerIcon(group)
     }).addTo(map);
 
-    marker.on("mouseover", () => showInfoCard(group));
-    marker.on("click", () => {
-      showInfoCard(group);
-      map.panTo([coords.lat, coords.lng]);
-    });
+    bindMarkerPopup(marker, group);
 
     allMarkers.push(marker);
     bounds.push([coords.lat, coords.lng]);
@@ -521,6 +798,10 @@ function drawMarkers() {
     });
   }
 }
+
+/* =====================================================
+   BUILD MAP FROM GOOGLE SHEET
+===================================================== */
 
 async function buildMap() {
   const missionaries = await loadSheet(MISSIONARY_SHEET_NAME);
@@ -561,12 +842,12 @@ async function buildMap() {
   drawMarkers();
 }
 
+/* =====================================================
+   EVENT LISTENERS
+===================================================== */
+
 document.getElementById("showElders").addEventListener("change", drawMarkers);
 document.getElementById("showSisters").addEventListener("change", drawMarkers);
 document.getElementById("familyFilter").addEventListener("change", drawMarkers);
-
-document.getElementById("closeCard").addEventListener("click", () => {
-  document.getElementById("infoCard").classList.add("hidden");
-});
 
 buildMap();
