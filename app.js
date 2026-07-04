@@ -22,12 +22,12 @@ let allMarkers = [];
 
 const TITLE_BY_LANGUAGE = {
   English: { elder: "Elder", sister: "Sister" },
-  Spanish: { elder: "Élder", sister: "Hermana" },
-  Italian: { elder: "Anziano", sister: "Sorella" },
-  French: { elder: "Aîné", sister: "Sœur" },
-  German: { elder: "Ältester", sister: "Schwester" },
-  Portuguese: { elder: "Élder", sister: "Irmã" },
-  Danish: { elder: "Ældste", sister: "Søster" }
+  Spanish: { elder: "Elder", sister: "Hermana" },
+  Italian: { elder: "Elder", sister: "Sorella" },
+  French: { elder: "Elder", sister: "Sœur" },
+  German: { elder: "Elder", sister: "Sister" },
+  Portuguese: { elder: "Elder", sister: "Sister" },
+  Danish: { elder: "Elder", sister: "Søster" }
 };
 
 const CONTINENTS = {
@@ -355,6 +355,7 @@ function showInfoCard(missionaries) {
       <div class="card-location-small">
         ${getFlagImage(country, state)}
         <div class="card-mission">${mission || ""}</div>
+        <div class="popup-language">${getLanguage(m)}</div>
       </div>
 
       <div class="card-dates">
