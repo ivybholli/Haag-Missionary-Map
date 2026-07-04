@@ -349,15 +349,11 @@ INFO CARD
 }
 
 .card-presidents{
-
     margin-top:10px;
-
     font-size:14px;
-
     color:#555;
-
-    line-height:1.4;
-
+    line-height:1.45;
+    text-align:center;
 }
 
 .card-spouse{
