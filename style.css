@@ -1,175 +1,137 @@
-/* ==========================
-   PAGE
-========================== */
-
 html,
 body {
-    margin: 0;
-    height: 100%;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: #f4f4f4;
+  margin: 0;
+  height: 100%;
+  font-family: Georgia, "Times New Roman", serif;
+  background: #e8e4dc;
 }
 
-.container {
-    display: flex;
-    height: 100vh;
+#map {
+  height: 100vh;
+  width: 100vw;
 }
 
-/* ==========================
-   SIDEBAR
-========================== */
-
-.sidebar {
-    width: 330px;
-    background: white;
-    padding: 24px;
-    overflow-y: auto;
-    border-right: 1px solid #ddd;
-    box-shadow: 2px 0 10px rgba(0,0,0,.08);
-    z-index: 1000;
+.leaflet-container {
+  background: #d8d4ca;
 }
 
-.sidebar h1 {
-    margin-top: 0;
-    margin-bottom: 25px;
-    font-size: 28px;
-    color: #333;
+.map-panel {
+  position: absolute;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #cfc7b8;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+  border-radius: 3px;
+  color: #2f2a24;
 }
 
-.card {
-    background: white;
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 20px;
-    box-shadow: 0 3px 10px rgba(0,0,0,.08);
+.left-panel {
+  left: 18px;
+  top: 18px;
+  width: 285px;
+  padding: 18px;
 }
 
-.card h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
+.right-panel {
+  right: 18px;
+  top: 18px;
+  width: 230px;
+  padding: 16px;
+}
+
+h1 {
+  margin: 0 0 18px;
+  font-size: 25px;
+  font-weight: normal;
+  letter-spacing: 0.3px;
+}
+
+h3 {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: normal;
+  border-bottom: 1px solid #d8d1c4;
+  padding-bottom: 7px;
+}
+
+.panel-section {
+  margin-top: 17px;
+}
+
+select {
+  width: 100%;
+  padding: 9px;
+  border: 1px solid #bdb5a7;
+  background: #fbfaf7;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
 }
 
 label {
-    cursor: pointer;
+  display: block;
+  margin: 10px 0;
+  cursor: pointer;
+  font-size: 15px;
 }
-
-/* ==========================
-   MAP
-========================== */
-
-#map {
-    flex: 1;
-    height: 100vh;
-}
-
-/* ==========================
-   LEAFLET POPUP
-========================== */
-
-.leaflet-popup-content-wrapper {
-    border-radius: 22px;
-    padding: 8px;
-}
-
-.leaflet-popup-content {
-    margin: 14px 18px;
-}
-
-.leaflet-popup-tip {
-    box-shadow: none;
-}
-
-/* ==========================
-   POPUP
-========================== */
-
-.mission-popup {
-    text-align: center;
-    min-width: 260px;
-}
-
-.mission-popup h2 {
-    margin: 0;
-    color: #e44b88;
-    font-size: 28px;
-    font-weight: 700;
-}
-
-.popup-divider {
-    height: 1px;
-    background: #e4e4e4;
-    margin: 18px 0;
-}
-
-.popup-location {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 16px;
-}
-
-.popup-flag {
-    font-size: 52px;
-}
-
-.popup-country {
-    font-size: 34px;
-    font-weight: bold;
-    line-height: 1;
-}
-
-.popup-city {
-    font-size: 22px;
-    color: #555;
-    margin-top: 4px;
-}
-
-.popup-dates {
-    margin-top: 12px;
-    font-size: 20px;
-    color: #444;
-}
-
-.popup-spouse {
-    margin-top: 18px;
-    font-size: 18px;
-    color: #555;
-    font-style: italic;
-}
-
-/* ==========================
-   CHECKBOXES
-========================== */
 
 input[type="checkbox"] {
-    transform: scale(1.15);
-    margin-right: 8px;
+  margin-right: 7px;
 }
 
-/* ==========================
-   SCROLLBAR
-========================== */
-
-::-webkit-scrollbar {
-    width: 8px;
+.dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  margin-right: 4px;
+  border: 1px solid white;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #d2d2d2;
-    border-radius: 10px;
+.blue {
+  background: #2563eb;
+}
+
+.pink {
+  background: #ec4899;
+}
+
+.legend-row {
+  margin-top: 9px;
+  font-size: 14px;
+  color: #4b4237;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee8dc;
+  padding: 7px 0;
+  font-size: 15px;
+}
+
+.stat strong {
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.custom-marker {
+  background: transparent;
+  border: none;
 }
 
 .info-card {
   position: absolute;
-  left: 390px;
-  top: 90px;
-  background: white;
-  border-radius: 14px;
-  padding: 16px 18px;
-  width: 250px;
   z-index: 2000;
-  box-shadow: 0 8px 24px rgba(0,0,0,.22);
+  left: 330px;
+  top: 95px;
+  width: 310px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid #cfc7b8;
+  border-radius: 3px;
+  box-shadow: 0 5px 22px rgba(0, 0, 0, 0.28);
+  padding: 18px;
   text-align: center;
+  color: #2f2a24;
 }
 
 .info-card.hidden {
@@ -178,67 +140,56 @@ input[type="checkbox"] {
 
 .close-card {
   position: absolute;
-  right: 10px;
+  right: 9px;
   top: 6px;
-  border: none;
   background: transparent;
+  border: none;
   font-size: 24px;
-  color: #999;
   cursor: pointer;
+  color: #8a8175;
 }
 
 .info-card h2 {
-  margin: 8px 20px 10px;
-  color: #e44b88;
-  font-size: 20px;
-  line-height: 1.15;
+  margin: 8px 24px 12px;
+  font-size: 24px;
+  font-weight: normal;
+  color: #6f4e37;
 }
 
 .card-divider {
   height: 1px;
-  background: #ddd;
-  margin: 10px 0;
-}
-
-.card-mission {
-  font-size: 15px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 10px;
+  background: #d8d1c4;
+  margin: 12px 0;
 }
 
 .card-location-small {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 10px;
 }
 
 .flag-img {
-  width: 42px;
-  border-radius: 3px;
+  width: 48px;
+  border: 1px solid #ddd;
   box-shadow: 0 1px 4px rgba(0,0,0,.18);
 }
 
-.flag-placeholder {
-  font-size: 34px;
-}
-
-.card-place {
+.card-mission {
   font-size: 17px;
-  font-weight: 700;
-  line-height: 1.2;
+  font-weight: bold;
+  line-height: 1.25;
 }
 
-.card-dates {
+.card-dates,
+.card-presidents,
+.card-spouse {
   font-size: 15px;
-  color: #444;
+  margin-top: 9px;
+  color: #4b4237;
 }
 
 .card-spouse {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #555;
   font-style: italic;
 }
