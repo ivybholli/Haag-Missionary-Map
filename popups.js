@@ -1,7 +1,3 @@
-/* =====================================================
-   POPUP HTML
-===================================================== */
-
 function missionaryPopupHtml(m) {
   const name = getName(m);
   const sex = getSex(m);
@@ -26,9 +22,7 @@ function missionaryPopupHtml(m) {
         </div>
       </div>
 
-      <div class="card-dates">
-        ${formatMissionDates(m)}
-      </div>
+      <div class="card-dates">${formatMissionDates(m)}</div>
 
       ${presidents ? `<div class="card-presidents">${formatPresidents(presidents)}</div>` : ""}
 
@@ -43,9 +37,7 @@ function groupPopupHtml(group) {
   const country = getCountry(first);
   const state = getState(first);
 
-  const languageSet = new Set(
-    group.map(m => getLanguage(m)).filter(Boolean)
-  );
+  const languageSet = new Set(group.map(m => getLanguage(m)).filter(Boolean));
 
   return `
     <div class="leaflet-mission-popup group-mission-popup">
@@ -85,37 +77,35 @@ function groupPopupHtml(group) {
   `;
 }
 
-/* =====================================================
-   SIDE DETAIL PREVIEW
-===================================================== */
-
-function showDetailPreview(m, anchorElement = null) {
+function showDetailPreview(m, anchorElement) {
   const preview = document.getElementById("detailPreview");
-  if (!preview) return;
+  if (!preview || !anchorElement) return;
 
   preview.innerHTML = missionaryPopupHtml(m);
   preview.classList.remove("hidden");
 
-  if (anchorElement) {
-    const rect = anchorElement.getBoundingClientRect();
+  const rect = anchorElement.getBoundingClientRect();
 
-    preview.style.left = `${rect.right + 14}px`;
-    preview.style.top = `${rect.top}px`;
+  let left = rect.right + 14;
+  let top = rect.top;
 
-    const previewRect = preview.getBoundingClientRect();
+  preview.style.left = `${left}px`;
+  preview.style.top = `${top}px`;
 
-    if (previewRect.right > window.innerWidth - 10) {
-      preview.style.left = `${rect.left - previewRect.width - 14}px`;
-    }
+  const previewRect = preview.getBoundingClientRect();
 
-    if (previewRect.bottom > window.innerHeight - 10) {
-      preview.style.top = `${window.innerHeight - previewRect.height - 10}px`;
-    }
-
-    if (previewRect.top < 10) {
-      preview.style.top = "10px";
-    }
+  if (previewRect.right > window.innerWidth - 12) {
+    left = rect.left - previewRect.width - 14;
   }
+
+  if (previewRect.bottom > window.innerHeight - 12) {
+    top = window.innerHeight - previewRect.height - 12;
+  }
+
+  if (top < 12) top = 12;
+
+  preview.style.left = `${left}px`;
+  preview.style.top = `${top}px`;
 }
 
 function hideDetailPreview() {
@@ -126,33 +116,30 @@ function hideDetailPreview() {
   preview.innerHTML = "";
 }
 
-/* =====================================================
-   POPUP EVENTS
-===================================================== */
-
 function attachGroupPopupEvents(marker, group) {
   marker.on("popupopen", event => {
-    const popupEl = event.popup.getElement();
-    if (!popupEl) return;
+    setTimeout(() => {
+      const popupEl = event.popup.getElement();
+      if (!popupEl) return;
 
-    popupEl.querySelectorAll(".missionary-list-item").forEach(button => {
-      const index = Number(button.dataset.index);
-      const missionary = group[index];
+      popupEl.querySelectorAll(".missionary-list-item").forEach(button => {
+        const index = Number(button.dataset.index);
+        const missionary = group[index];
 
-      button.addEventListener("mouseenter", () => {
-        showDetailPreview(missionary, button);
+        button.addEventListener("mouseenter", () => {
+          showDetailPreview(missionary, button);
+        });
+
+        button.addEventListener("click", e => {
+          e.preventDefault();
+          e.stopPropagation();
+          showDetailPreview(missionary, button);
+        });
       });
-
-      button.addEventListener("click", event => {
-        event.stopPropagation();
-        showDetailPreview(missionary, button);
-      });
-    });
+    }, 0);
   });
 
-  marker.on("popupclose", () => {
-    hideDetailPreview();
-  });
+  marker.on("popupclose", hideDetailPreview);
 }
 
 function bindMarkerPopup(marker, group) {
