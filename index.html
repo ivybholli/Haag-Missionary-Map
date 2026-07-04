@@ -13,12 +13,21 @@
 <body>
   <div id="map"></div>
 
+  <!-- LEFT CONTROL PANEL -->
   <aside class="map-panel left-panel">
     <h1>Haag Missionary Map</h1>
 
     <div class="panel-section">
-      <h3>Haag Siblings</h3>
+      <h3>Search</h3>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search missionary, mission, country..."
+      />
+    </div>
 
+    <div class="panel-section">
+      <h3>Haag Siblings</h3>
       <select id="familyFilter">
         <option value="all">Whole Haag Family</option>
         <option value="Darrell">Darrell</option>
@@ -51,15 +60,17 @@
         Sisters
       </label>
 
-      <div class="legend-row">
-        <span class="legend-symbol">★</span>
+      <label class="legend-check">
+        <input type="checkbox" id="showCurrent" checked />
+        <span class="legend-symbol">✓</span>
         Currently Serving
-      </div>
+      </label>
 
-      <div class="legend-row">
+      <label class="legend-check">
+        <input type="checkbox" id="showInLaws" checked />
         <span class="legend-symbol">♥</span>
         Married In / In-law
-      </div>
+      </label>
 
       <div class="legend-row">
         <span class="legend-dot mixed-dot"></span>
@@ -68,6 +79,7 @@
     </div>
   </aside>
 
+  <!-- RIGHT STATS PANEL -->
   <aside class="map-panel right-panel">
     <h3>Statistics</h3>
 
@@ -87,6 +99,11 @@
     </div>
 
     <div class="stat">
+      <span>Currently Serving</span>
+      <strong id="currentMissionaries">--</strong>
+    </div>
+
+    <div class="stat">
       <span>Countries</span>
       <strong id="countriesServed">--</strong>
     </div>
@@ -100,10 +117,42 @@
       <span>Continents</span>
       <strong id="totalContinents">--</strong>
     </div>
+
+    <div class="stat-highlight">
+      <span>Most Common Language</span>
+      <strong id="topLanguage">--</strong>
+    </div>
+
+    <div class="stat-highlight">
+      <span>Most Served Country</span>
+      <strong id="topCountry">--</strong>
+    </div>
+
+    <div class="stat-highlight">
+      <span>Most Common Mission</span>
+      <strong id="topMission">--</strong>
+    </div>
   </aside>
 
-    <button id="closeCard" class="close-card" aria-label="Close">×</button>
-    <div id="infoCardContent"></div>
+  <!-- TIMELINE PANEL -->
+  <div class="timeline-panel">
+    <div class="timeline-header">
+      <span>Timeline</span>
+      <strong id="timelineYearLabel">All Years</strong>
+    </div>
+
+    <input
+      type="range"
+      id="timelineSlider"
+      min="1900"
+      max="2035"
+      value="2035"
+    />
+
+    <div class="timeline-actions">
+      <button id="showAllYears" type="button">All Years</button>
+      <button id="showToday" type="button">Today</button>
+    </div>
   </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
