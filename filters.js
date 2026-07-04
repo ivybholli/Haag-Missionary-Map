@@ -1,36 +1,23 @@
-/* =====================================================
-   FILTERS + SEARCH + TIMELINE
-===================================================== */
+let selectedYears = new Set();
 
 function matchesFamily(m) {
   const selected = document.getElementById("familyFilter").value;
-
   if (selected === "all") return true;
-
   return normalize(getRelation(m)).includes(normalize(selected));
 }
 
 function matchesSex(m) {
   const showElders = document.getElementById("showElders").checked;
   const showSisters = document.getElementById("showSisters").checked;
-
   return getSex(m) === "Female" ? showSisters : showElders;
 }
 
 function matchesCurrentFilter(m) {
-  const showCurrent = document.getElementById("showCurrent").checked;
-
-  if (showCurrent) return true;
-
-  return !isCurrentlyServing(m);
+  return document.getElementById("showCurrent").checked || !isCurrentlyServing(m);
 }
 
 function matchesInLawFilter(m) {
-  const showInLaws = document.getElementById("showInLaws").checked;
-
-  if (showInLaws) return true;
-
-  return !isInLaw(m);
+  return document.getElementById("showInLaws").checked || !isInLaw(m);
 }
 
 function matchesSearch(m) {
@@ -49,9 +36,25 @@ function matchesSearch(m) {
   return normalize(haystack).includes(normalize(activeSearch));
 }
 
-function matchesTimeline(m) {
-  if (allYearsMode) return true;
-  return servedDuringYear(m, Number(activeYear));
+function missionaryYears(m) {
+  const start = parseMonthYear(getStartDate(m));
+  const end = parseMonthYear(getEndDate(m));
+
+  if (!start || !end) return [];
+
+  const years = [];
+  for (let y = start.year; y <= end.year; y++) {
+    years.push(y);
+  }
+
+  return years;
+}
+
+function matchesYearFilter(m) {
+  if (selectedYears.size === 0) return true;
+
+  const years = missionaryYears(m);
+  return years.some(year => selectedYears.has(year));
 }
 
 function getFilteredData() {
@@ -62,14 +65,45 @@ function getFilteredData() {
       matchesCurrentFilter(m) &&
       matchesInLawFilter(m) &&
       matchesSearch(m) &&
-      matchesTimeline(m)
+      matchesYearFilter(m)
     );
   });
 }
 
-/* =====================================================
-   EVENT LISTENERS
-===================================================== */
+function buildYearCheckboxes() {
+  const container = document.getElementById("yearCheckboxes");
+  if (!container) return;
+
+  const years = new Set();
+
+  allMissionaries.forEach(m => {
+    missionaryYears(m).forEach(year => years.add(year));
+  });
+
+  container.innerHTML = Array.from(years)
+    .sort((a, b) => b - a)
+    .map(year => `
+      <label class="year-option">
+        <input type="checkbox" value="${year}">
+        ${year}
+      </label>
+    `)
+    .join("");
+
+  container.querySelectorAll("input").forEach(input => {
+    input.addEventListener("change", () => {
+      const year = Number(input.value);
+
+      if (input.checked) {
+        selectedYears.add(year);
+      } else {
+        selectedYears.delete(year);
+      }
+
+      drawMarkers();
+    });
+  });
+}
 
 function setupFilters() {
   document.getElementById("showElders").addEventListener("change", drawMarkers);
@@ -83,27 +117,15 @@ function setupFilters() {
     drawMarkers();
   });
 
-  document.getElementById("timelineSlider").addEventListener("input", event => {
-    activeYear = Number(event.target.value);
-    allYearsMode = false;
-    document.getElementById("timelineYearLabel").textContent = activeYear;
-    drawMarkers();
-  });
+  document.getElementById("clearYears").addEventListener("click", () => {
+    selectedYears.clear();
 
-  document.getElementById("showAllYears").addEventListener("click", () => {
-    allYearsMode = true;
-    activeYear = "all";
-    document.getElementById("timelineYearLabel").textContent = "All Years";
-    drawMarkers();
-  });
-
-  document.getElementById("showToday").addEventListener("click", () => {
-    allYearsMode = false;
-    activeYear = new Date().getFullYear();
-
-    document.getElementById("timelineSlider").value = activeYear;
-    document.getElementById("timelineYearLabel").textContent = "Today";
+    document
+      .querySelectorAll("#yearCheckboxes input")
+      .forEach(input => input.checked = false);
 
     drawMarkers();
   });
+
+  buildYearCheckboxes();
 }
