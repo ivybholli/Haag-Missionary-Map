@@ -4,12 +4,12 @@
 
 const TITLE_BY_LANGUAGE = {
   English: { elder: "Elder", sister: "Sister" },
-  Spanish: { elder: "Élder", sister: "Hermana" },
-  Italian: { elder: "Anziano", sister: "Sorella" },
-  French: { elder: "Aîné", sister: "Sœur" },
-  German: { elder: "Ältester", sister: "Schwester" },
-  Portuguese: { elder: "Élder", sister: "Irmã" },
-  Danish: { elder: "Ældste", sister: "Søster" }
+  Spanish: { elder: "Elder", sister: "Hermana" },
+  Italian: { elder: "Elder", sister: "Sorella" },
+  French: { elder: "Elder", sister: "Sœur" },
+  German: { elder: "Elder", sister: "Sister" },
+  Portuguese: { elder: "Elder", sister: "Sister" },
+  Danish: { elder: "Elder", sister: "Søster" }
 };
 
 const CONTINENTS = {
@@ -163,21 +163,7 @@ function getFlagImage(country, state) {
     Brazil: "br",
     Denmark: "dk",
     Germany: "de",
-    Italy: "it",
-    France: "fr",
-    Spain: "es",
-    Mexico: "mx",
-    Canada: "ca",
-    England: "gb",
-    "United Kingdom": "gb",
-    Argentina: "ar",
-    Chile: "cl",
-    Peru: "pe",
-    Colombia: "co",
-    Philippines: "ph",
-    Japan: "jp",
-    Australia: "au",
-    "New Zealand": "nz"
+    Italy: "it"
   };
 
   const usFlags = {
@@ -191,7 +177,8 @@ function getFlagImage(country, state) {
   };
 
   const brazilFlags = {
-    Goiás: "https://upload.wikimedia.org/wikipedia/commons/0/0d/Bandeira_de_Goi%C3%A1s.svg",
+    "Goiás": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Bandeira_de_Goi%C3%A1s.svg",
+    "Goias": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Bandeira_de_Goi%C3%A1s.svg",
     "Rio de Janeiro": "https://upload.wikimedia.org/wikipedia/commons/7/73/Bandeira_do_estado_do_Rio_de_Janeiro.svg"
   };
 
@@ -204,7 +191,6 @@ function getFlagImage(country, state) {
   }
 
   const code = countryCodes[cleanCountry];
-
   if (!code) return `<div class="flag-placeholder">🌍</div>`;
 
   return `<img class="flag-img" src="https://flagcdn.com/w80/${code}.png" alt="${cleanCountry} flag">`;
