@@ -32,6 +32,7 @@ const TITLE_BY_LANGUAGE = {
 const COUNTRY_CODES = {
   "United States": "us",
   USA: "us",
+  US: "us",
   Brazil: "br",
   Italy: "it",
   Denmark: "dk",
@@ -55,6 +56,7 @@ const COUNTRY_CODES = {
 const CONTINENTS = {
   "United States": "North America",
   USA: "North America",
+  US: "North America",
   Canada: "North America",
   Mexico: "North America",
   Brazil: "South America",
@@ -75,29 +77,163 @@ const CONTINENTS = {
   "New Zealand": "Oceania"
 };
 
+function cleanHeader(value) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function normalize(value) {
-  return String(value || "").trim().toLowerCase();
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function getValue(row, possibleNames) {
+  for (const name of possibleNames) {
+    if (row[name] !== undefined && row[name] !== "") return row[name];
+  }
+
+  const rowKeys = Object.keys(row);
+
+  for (const name of possibleNames) {
+    const foundKey = rowKeys.find(key => normalize(key) === normalize(name));
+    if (foundKey && row[foundKey] !== "") return row[foundKey];
+  }
+
+  return "";
 }
 
 async function loadSheet(sheetName) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+
   const res = await fetch(url);
   const text = await res.text();
   const json = JSON.parse(text.substring(47).slice(0, -2));
 
-  const cols = json.table.cols.map(c => c.label);
+  const cols = json.table.cols.map(c => cleanHeader(c.label));
+
+  console.log(`Columns for ${sheetName}:`, cols);
 
   return json.table.rows.map(row => {
     const obj = {};
+
     row.c.forEach((cell, i) => {
-      obj[cols[i]] = cell ? cell.v : "";
+      const key = cols[i];
+      obj[key] = cell ? cell.v : "";
     });
+
     return obj;
   });
 }
 
 function coordKey(city, state, country) {
-  return `${normalize(city)}|${normalize(state)}|${normalize(country)}`;
+  return [
+    normalize(city),
+    normalize(state),
+    normalize(country)
+  ].join("|");
+}
+
+function getName(m) {
+  return getValue(m, [
+    "Missionary Name (First Last) (e.g., Dawn Hollingsworth)",
+    "Missionary Name",
+    "Name"
+  ]);
+}
+
+function getSex(m) {
+  return getValue(m, [
+    "Biological Sex",
+    "Sex",
+    "Gender"
+  ]);
+}
+
+function getRelation(m) {
+  return getValue(m, [
+    "Who is your Haag relation?",
+    "Haag relation",
+    "Relation"
+  ]);
+}
+
+function getRelationshipToElvaDarrell(m) {
+  return getValue(m, [
+    "What is your relationship to Elva and Darrell?",
+    "Relationship to Elva and Darrell"
+  ]);
+}
+
+function getMissionName(m) {
+  return getValue(m, [
+    "Official Mission name (Ex: Maryland Baltimore)",
+    "Official Mission Name",
+    "Mission Name"
+  ]);
+}
+
+function getMissionCity(m) {
+  return getValue(m, [
+    "Mission City",
+    "City"
+  ]);
+}
+
+function getMissionState(m) {
+  return getValue(m, [
+    "Mission State",
+    "State",
+    "State/Region"
+  ]);
+}
+
+function getMissionCountry(m) {
+  return getValue(m, [
+    "Mission Country",
+    "Country"
+  ]);
+}
+
+function getLanguage(m) {
+  return getValue(m, [
+    "Assigned Language(s)",
+    "Assigned Languages",
+    "Language",
+    "Languages"
+  ]);
+}
+
+function getStartDate(m) {
+  return getValue(m, [
+    "Start Date (MM/YYYY)",
+    "Start Date"
+  ]);
+}
+
+function getEndDate(m) {
+  return getValue(m, [
+    "End Date (MM/YYYY)",
+    "End Date"
+  ]);
+}
+
+function getPresidents(m) {
+  return getValue(m, [
+    "Mission President Names (Ex: President and Sister Piros; President and Sister Varner)",
+    "Mission President Names",
+    "Mission Presidents"
+  ]);
+}
+
+function getSpouse(m) {
+  return getValue(m, [
+    "Your Spouse's Name (If Applicable)",
+    "Spouse",
+    "Spouse Name"
+  ]);
 }
 
 function getTitle(sex, name, language) {
@@ -128,14 +264,13 @@ function parseMissionEndDate(value) {
 }
 
 function isCurrentlyServing(m) {
-  const endDate = parseMissionEndDate(m["End Date (MM/YYYY)"]);
+  const endDate = parseMissionEndDate(getEndDate(m));
   if (!endDate) return false;
   return endDate >= new Date();
 }
 
 function isInLaw(m) {
-  const relationship = m["What is your relationship to Elva and Darrell?"];
-  return normalize(relationship).includes("in-law");
+  return normalize(getRelationshipToElvaDarrell(m)).includes("in-law");
 }
 
 function getMarkerShape(m) {
@@ -180,16 +315,16 @@ function getFlagImage(country, state) {
 }
 
 function showInfoCard(m) {
-  const name = m["Missionary Name (First Last) (e.g., Dawn Hollingsworth)"];
-  const sex = m["Biological Sex"];
-  const language = m["Assigned Language(s)"];
-  const mission = m["Official Mission name (Ex: Maryland Baltimore)"];
-  const country = m["Mission Country"];
-  const state = m["Mission State"];
-  const start = m["Start Date (MM/YYYY)"];
-  const end = m["End Date (MM/YYYY)"];
-  const presidents = m["Mission President Names (Ex: President and Sister Piros; President and Sister Varner)"];
-  const spouse = m["Your Spouse's Name (If Applicable)"];
+  const name = getName(m);
+  const sex = getSex(m);
+  const language = getLanguage(m);
+  const mission = getMissionName(m);
+  const country = getMissionCountry(m);
+  const state = getMissionState(m);
+  const start = getStartDate(m);
+  const end = getEndDate(m);
+  const presidents = getPresidents(m);
+  const spouse = getSpouse(m);
 
   document.getElementById("infoCardContent").innerHTML = `
     <h2>${getTitle(sex, name, language)}</h2>
@@ -215,15 +350,14 @@ function matchesFamily(m) {
   const selected = document.getElementById("familyFilter").value;
   if (selected === "all") return true;
 
-  const relation = m["Who is your Haag relation?"];
-  return normalize(relation).includes(normalize(selected));
+  return normalize(getRelation(m)).includes(normalize(selected));
 }
 
 function matchesSex(m) {
   const showElders = document.getElementById("showElders").checked;
   const showSisters = document.getElementById("showSisters").checked;
 
-  return m["Biological Sex"] === "Female" ? showSisters : showElders;
+  return getSex(m) === "Female" ? showSisters : showElders;
 }
 
 function getFilteredData() {
@@ -234,16 +368,19 @@ function updateStats(data) {
   document.getElementById("totalMissionaries").textContent = data.length;
 
   document.getElementById("totalElders").textContent =
-    data.filter(m => m["Biological Sex"] !== "Female").length;
+    data.filter(m => getSex(m) !== "Female").length;
 
   document.getElementById("totalSisters").textContent =
-    data.filter(m => m["Biological Sex"] === "Female").length;
+    data.filter(m => getSex(m) === "Female").length;
 
-  const countries = new Set(data.map(m => m["Mission Country"]).filter(Boolean));
+  const countries = new Set(
+    data.map(m => getMissionCountry(m)).filter(Boolean)
+  );
 
   const languages = new Set();
+
   data.forEach(m => {
-    String(m["Assigned Language(s)"] || "")
+    String(getLanguage(m) || "")
       .split(/,|;/)
       .map(x => x.trim())
       .filter(Boolean)
@@ -251,7 +388,9 @@ function updateStats(data) {
   });
 
   const continents = new Set(
-    data.map(m => CONTINENTS[m["Mission Country"]]).filter(Boolean)
+    data
+      .map(m => CONTINENTS[getMissionCountry(m)])
+      .filter(Boolean)
   );
 
   document.getElementById("countriesServed").textContent = countries.size;
@@ -276,10 +415,11 @@ function drawMarkers() {
     if (!m.coords) return;
 
     const marker = L.marker([m.coords.lat, m.coords.lng], {
-      icon: createIcon(getMarkerShape(m), getColor(m["Biological Sex"]))
+      icon: createIcon(getMarkerShape(m), getColor(getSex(m)))
     }).addTo(map);
 
     marker.on("mouseover", () => showInfoCard(m));
+
     marker.on("click", () => {
       showInfoCard(m);
       map.panTo([m.coords.lat, m.coords.lng]);
@@ -288,6 +428,8 @@ function drawMarkers() {
     allMarkers.push(marker);
     bounds.push([m.coords.lat, m.coords.lng]);
   });
+
+  console.log("Markers drawn:", bounds.length);
 
   if (bounds.length > 0) {
     map.fitBounds(bounds, {
@@ -301,29 +443,52 @@ async function buildMap() {
   const missionaries = await loadSheet(MISSIONARY_SHEET_NAME);
   const coordinates = await loadSheet(COORDINATES_SHEET_NAME);
 
+  console.log("Missionaries loaded:", missionaries);
+  console.log("Coordinates loaded:", coordinates);
+
   const coordLookup = {};
 
   coordinates.forEach(row => {
-    const key = coordKey(row["City"], row["State/Region"], row["Country"]);
+    const city = getValue(row, ["City", "Mission City"]);
+    const state = getValue(row, ["State/Region", "State", "Mission State"]);
+    const country = getValue(row, ["Country", "Mission Country"]);
+    const lat = Number(getValue(row, ["Latitude", "Lat"]));
+    const lng = Number(getValue(row, ["Longitude", "Long", "Lng"]));
 
-    coordLookup[key] = {
-      lat: Number(row["Latitude"]),
-      lng: Number(row["Longitude"])
-    };
+    if (!city || !country || isNaN(lat) || isNaN(lng)) return;
+
+    coordLookup[coordKey(city, state, country)] = { lat, lng };
+    coordLookup[coordKey(city, "", country)] = { lat, lng };
   });
 
   allMissionaries = missionaries.map(m => {
-    const key = coordKey(
-      m["Mission City"],
-      m["Mission State"],
-      m["Mission Country"]
-    );
+    const city = getMissionCity(m);
+    const state = getMissionState(m);
+    const country = getMissionCountry(m);
+
+    const exactKey = coordKey(city, state, country);
+    const noStateKey = coordKey(city, "", country);
+
+    const coords = coordLookup[exactKey] || coordLookup[noStateKey] || null;
+
+    if (!coords) {
+      console.warn("No coordinates found for:", {
+        name: getName(m),
+        city,
+        state,
+        country,
+        exactKey,
+        noStateKey
+      });
+    }
 
     return {
       ...m,
-      coords: coordLookup[key] || null
+      coords
     };
   });
+
+  console.log("Missionaries with coordinates:", allMissionaries);
 
   drawMarkers();
 }
