@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Haag Missionary Map</title>
+  <title>Haag Family Missionary Map</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
@@ -13,22 +13,37 @@
 <body>
   <div id="map"></div>
 
-  <aside class="map-panel left-panel">
-    <h1>Haag Missionary Map</h1>
+  <button id="menuToggle" class="collapse-btn menu-toggle" type="button">
+    ☰ Menu
+  </button>
+
+  <button id="statsToggle" class="collapse-btn stats-toggle" type="button">
+    📊 Stats
+  </button>
+
+  <aside id="menuPanel" class="map-panel left-panel">
+    <div class="panel-header">
+      <div>
+        <h1>Haag Family</h1>
+        <div class="subtitle">Missionary Map</div>
+      </div>
+
+      <button id="menuClose" class="panel-close" type="button">×</button>
+    </div>
 
     <div class="panel-section">
       <h3>Search</h3>
       <input
         type="text"
         id="searchInput"
-        placeholder="Search missionary, mission, country..."
+        placeholder="Search name, mission, country..."
       />
     </div>
 
     <div class="panel-section">
       <h3>Haag Siblings</h3>
       <select id="familyFilter">
-        <option value="all">Whole Haag Family</option>
+        <option value="all">All</option>
         <option value="Darrell">Darrell</option>
         <option value="Jeanette">Jeanette</option>
         <option value="Jolene">Jolene</option>
@@ -91,16 +106,25 @@
     </div>
   </aside>
 
-  <aside class="map-panel right-panel">
-    <h3>Statistics</h3>
+  <aside id="statsPanel" class="map-panel right-panel">
+    <div class="panel-header small-header">
+      <h3>Statistics</h3>
+      <button id="statsClose" class="panel-close" type="button">×</button>
+    </div>
 
     <div class="stat"><span>Total Missionaries</span><strong id="totalMissionaries">--</strong></div>
     <div class="stat"><span>Total Elders</span><strong id="totalElders">--</strong></div>
     <div class="stat"><span>Total Sisters</span><strong id="totalSisters">--</strong></div>
     <div class="stat"><span>Currently Serving</span><strong id="currentMissionaries">--</strong></div>
+
     <div class="stat"><span>Countries</span><strong id="countriesServed">--</strong></div>
-    <div class="stat"><span>Languages</span><strong id="totalLanguages">--</strong></div>
     <div class="stat"><span>Continents</span><strong id="totalContinents">--</strong></div>
+    <div class="stat"><span>Languages</span><strong id="totalLanguages">--</strong></div>
+
+    <div class="stat-highlight">
+      <span>Duplicate Missions</span>
+      <strong id="duplicateMissions">--</strong>
+    </div>
 
     <div class="stat-highlight">
       <span>Most Common Language</span>
@@ -111,23 +135,11 @@
       <span>Most Served Country</span>
       <strong id="topCountry">--</strong>
     </div>
-
-    <div class="stat-highlight">
-      <span>Most Common Mission</span>
-      <strong id="topMission">--</strong>
-    </div>
   </aside>
 
   <div id="detailPreview" class="detail-preview hidden"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-  <script src="data.js"></script>
-  <script src="helpers.js"></script>
-  <script src="popups.js"></script>
-  <script src="markers.js"></script>
-  <script src="stats.js"></script>
-  <script src="filters.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
