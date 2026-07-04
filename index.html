@@ -13,7 +13,6 @@
 <body>
   <div id="map"></div>
 
-  <!-- LEFT CONTROL PANEL -->
   <aside class="map-panel left-panel">
     <h1>Haag Missionary Map</h1>
 
@@ -79,44 +78,16 @@
     </div>
   </aside>
 
-  <!-- RIGHT STATS PANEL -->
   <aside class="map-panel right-panel">
     <h3>Statistics</h3>
 
-    <div class="stat">
-      <span>Total Missionaries</span>
-      <strong id="totalMissionaries">--</strong>
-    </div>
-
-    <div class="stat">
-      <span>Total Elders</span>
-      <strong id="totalElders">--</strong>
-    </div>
-
-    <div class="stat">
-      <span>Total Sisters</span>
-      <strong id="totalSisters">--</strong>
-    </div>
-
-    <div class="stat">
-      <span>Currently Serving</span>
-      <strong id="currentMissionaries">--</strong>
-    </div>
-
-    <div class="stat">
-      <span>Countries</span>
-      <strong id="countriesServed">--</strong>
-    </div>
-
-    <div class="stat">
-      <span>Languages</span>
-      <strong id="totalLanguages">--</strong>
-    </div>
-
-    <div class="stat">
-      <span>Continents</span>
-      <strong id="totalContinents">--</strong>
-    </div>
+    <div class="stat"><span>Total Missionaries</span><strong id="totalMissionaries">--</strong></div>
+    <div class="stat"><span>Total Elders</span><strong id="totalElders">--</strong></div>
+    <div class="stat"><span>Total Sisters</span><strong id="totalSisters">--</strong></div>
+    <div class="stat"><span>Currently Serving</span><strong id="currentMissionaries">--</strong></div>
+    <div class="stat"><span>Countries</span><strong id="countriesServed">--</strong></div>
+    <div class="stat"><span>Languages</span><strong id="totalLanguages">--</strong></div>
+    <div class="stat"><span>Continents</span><strong id="totalContinents">--</strong></div>
 
     <div class="stat-highlight">
       <span>Most Common Language</span>
@@ -134,20 +105,13 @@
     </div>
   </aside>
 
-  <!-- TIMELINE PANEL -->
   <div class="timeline-panel">
     <div class="timeline-header">
       <span>Timeline</span>
       <strong id="timelineYearLabel">All Years</strong>
     </div>
 
-    <input
-      type="range"
-      id="timelineSlider"
-      min="1900"
-      max="2035"
-      value="2035"
-    />
+    <input type="range" id="timelineSlider" min="1900" max="2035" value="2035" />
 
     <div class="timeline-actions">
       <button id="showAllYears" type="button">All Years</button>
@@ -155,7 +119,16 @@
     </div>
   </div>
 
+  <div id="detailPreview" class="detail-preview hidden"></div>
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script src="data.js"></script>
+  <script src="helpers.js"></script>
+  <script src="popups.js"></script>
+  <script src="markers.js"></script>
+  <script src="stats.js"></script>
+  <script src="filters.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
