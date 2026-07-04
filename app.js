@@ -6,8 +6,9 @@ const MISSIONARY_SHEET_NAME = "Form Responses 1";
 const COORDINATES_SHEET_NAME = "Coordinates";
 
 const map = L.map("map", {
-  zoomControl: true
-}).setView([20, 0], 2);
+  zoomControl: true,
+  worldCopyJump: true
+}).setView([25, 0], 2);
 
 L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
@@ -34,9 +35,9 @@ const COUNTRY_CODES = {
   USA: "us",
   US: "us",
   Brazil: "br",
-  Italy: "it",
   Denmark: "dk",
   Germany: "de",
+  Italy: "it",
   France: "fr",
   Spain: "es",
   Mexico: "mx",
@@ -57,31 +58,25 @@ const CONTINENTS = {
   "United States": "North America",
   USA: "North America",
   US: "North America",
-  Canada: "North America",
-  Mexico: "North America",
   Brazil: "South America",
+  Denmark: "Europe",
+  Germany: "Europe",
+  Italy: "Europe",
+  France: "Europe",
+  Spain: "Europe",
+  Mexico: "North America",
+  Canada: "North America",
+  England: "Europe",
+  "United Kingdom": "Europe",
   Argentina: "South America",
   Chile: "South America",
   Peru: "South America",
   Colombia: "South America",
-  Italy: "Europe",
-  Denmark: "Europe",
-  Germany: "Europe",
-  France: "Europe",
-  Spain: "Europe",
-  England: "Europe",
-  "United Kingdom": "Europe",
   Philippines: "Asia",
   Japan: "Asia",
   Australia: "Oceania",
   "New Zealand": "Oceania"
 };
-
-function cleanHeader(value) {
-  return String(value || "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
 
 function normalize(value) {
   return String(value || "")
@@ -90,15 +85,21 @@ function normalize(value) {
     .toLowerCase();
 }
 
+function cleanHeader(value) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function getValue(row, possibleNames) {
   for (const name of possibleNames) {
     if (row[name] !== undefined && row[name] !== "") return row[name];
   }
 
-  const rowKeys = Object.keys(row);
+  const keys = Object.keys(row);
 
   for (const name of possibleNames) {
-    const foundKey = rowKeys.find(key => normalize(key) === normalize(name));
+    const foundKey = keys.find(key => normalize(key) === normalize(name));
     if (foundKey && row[foundKey] !== "") return row[foundKey];
   }
 
@@ -110,8 +111,8 @@ async function loadSheet(sheetName) {
 
   const res = await fetch(url);
   const text = await res.text();
-  const json = JSON.parse(text.substring(47).slice(0, -2));
 
+  const json = JSON.parse(text.substring(47).slice(0, -2));
   const cols = json.table.cols.map(c => cleanHeader(c.label));
 
   console.log(`Columns for ${sheetName}:`, cols);
@@ -120,44 +121,28 @@ async function loadSheet(sheetName) {
     const obj = {};
 
     row.c.forEach((cell, i) => {
-      const key = cols[i];
-      obj[key] = cell ? cell.v : "";
+      obj[cols[i]] = cell ? cell.v : "";
     });
 
     return obj;
   });
 }
 
-function coordKey(city, state, country) {
-  return [
-    normalize(city),
-    normalize(state),
-    normalize(country)
-  ].join("|");
-}
-
 function getName(m) {
   return getValue(m, [
     "Missionary Name (First Last) (e.g., Dawn Hollingsworth)",
+    "Missionary Name (First Last)",
     "Missionary Name",
     "Name"
   ]);
 }
 
 function getSex(m) {
-  return getValue(m, [
-    "Biological Sex",
-    "Sex",
-    "Gender"
-  ]);
+  return getValue(m, ["Biological Sex", "Sex", "Gender"]);
 }
 
 function getRelation(m) {
-  return getValue(m, [
-    "Who is your Haag relation?",
-    "Haag relation",
-    "Relation"
-  ]);
+  return getValue(m, ["Who is your Haag relation?", "Haag relation", "Relation"]);
 }
 
 function getRelationshipToElvaDarrell(m) {
@@ -171,30 +156,21 @@ function getMissionName(m) {
   return getValue(m, [
     "Official Mission name (Ex: Maryland Baltimore)",
     "Official Mission Name",
+    "Official Mission name",
     "Mission Name"
   ]);
 }
 
-function getMissionCity(m) {
-  return getValue(m, [
-    "Mission City",
-    "City"
-  ]);
+function getCity(m) {
+  return getValue(m, ["City", "Mission City"]);
 }
 
-function getMissionState(m) {
-  return getValue(m, [
-    "Mission State",
-    "State",
-    "State/Region"
-  ]);
+function getState(m) {
+  return getValue(m, ["State/Region", "State", "Mission State"]);
 }
 
-function getMissionCountry(m) {
-  return getValue(m, [
-    "Mission Country",
-    "Country"
-  ]);
+function getCountry(m) {
+  return getValue(m, ["Country", "Mission Country"]);
 }
 
 function getLanguage(m) {
@@ -207,17 +183,11 @@ function getLanguage(m) {
 }
 
 function getStartDate(m) {
-  return getValue(m, [
-    "Start Date (MM/YYYY)",
-    "Start Date"
-  ]);
+  return getValue(m, ["Start Date (MM/YYYY)", "Start Date"]);
 }
 
 function getEndDate(m) {
-  return getValue(m, [
-    "End Date (MM/YYYY)",
-    "End Date"
-  ]);
+  return getValue(m, ["End Date (MM/YYYY)", "End Date"]);
 }
 
 function getPresidents(m) {
@@ -266,6 +236,7 @@ function parseMissionEndDate(value) {
 function isCurrentlyServing(m) {
   const endDate = parseMissionEndDate(getEndDate(m));
   if (!endDate) return false;
+
   return endDate >= new Date();
 }
 
@@ -279,7 +250,7 @@ function getMarkerShape(m) {
   return "circle";
 }
 
-function createIcon(shape, color) {
+function createIcon(shape, color, count = null) {
   let svgShape;
 
   if (shape === "star") {
@@ -290,21 +261,28 @@ function createIcon(shape, color) {
     svgShape = `<circle cx="12" cy="12" r="8" />`;
   }
 
+  const countBadge = count && count > 1
+    ? `<div class="marker-count">${count}</div>`
+    : "";
+
   return L.divIcon({
     className: "custom-marker",
     html: `
-      <svg width="28" height="28" viewBox="0 0 24 24">
-        <g fill="${color}" stroke="white" stroke-width="2">
-          ${svgShape}
-        </g>
-      </svg>
+      <div class="marker-wrap">
+        <svg width="30" height="30" viewBox="0 0 24 24">
+          <g fill="${color}" stroke="white" stroke-width="2">
+            ${svgShape}
+          </g>
+        </svg>
+        ${countBadge}
+      </div>
     `,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14]
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
   });
 }
 
-function getFlagImage(country, state) {
+function getFlagImage(country) {
   const code = COUNTRY_CODES[country];
 
   if (!code) {
@@ -314,40 +292,70 @@ function getFlagImage(country, state) {
   return `<img class="flag-img" src="https://flagcdn.com/w80/${code}.png" alt="${country} flag">`;
 }
 
-function showInfoCard(m) {
-  const name = getName(m);
-  const sex = getSex(m);
-  const language = getLanguage(m);
-  const mission = getMissionName(m);
-  const country = getMissionCountry(m);
-  const state = getMissionState(m);
-  const start = getStartDate(m);
-  const end = getEndDate(m);
-  const presidents = getPresidents(m);
-  const spouse = getSpouse(m);
+function showInfoCard(missionaries) {
+  const list = Array.isArray(missionaries) ? missionaries : [missionaries];
 
-  document.getElementById("infoCardContent").innerHTML = `
-    <h2>${getTitle(sex, name, language)}</h2>
+  if (list.length === 1) {
+    const m = list[0];
 
-    <div class="card-divider"></div>
+    const name = getName(m);
+    const sex = getSex(m);
+    const language = getLanguage(m);
+    const mission = getMissionName(m);
+    const country = getCountry(m);
+    const start = getStartDate(m);
+    const end = getEndDate(m);
+    const presidents = getPresidents(m);
+    const spouse = getSpouse(m);
 
-    <div class="card-location-small">
-      ${getFlagImage(country, state)}
-      <div class="card-mission">${mission || ""}</div>
-    </div>
+    document.getElementById("infoCardContent").innerHTML = `
+      <h2>${getTitle(sex, name, language)}</h2>
 
-    <div class="card-dates">${start || ""} – ${end || ""}</div>
+      <div class="card-divider"></div>
 
-    ${presidents ? `<div class="card-presidents">${presidents}</div>` : ""}
+      <div class="card-location-small">
+        ${getFlagImage(country)}
+        <div class="card-mission">${mission || ""}</div>
+      </div>
 
-    ${spouse ? `<div class="card-spouse">Married to ${spouse}</div>` : ""}
-  `;
+      <div class="card-dates">${start || ""} – ${end || ""}</div>
+
+      ${presidents ? `<div class="card-presidents">${presidents}</div>` : ""}
+
+      ${spouse ? `<div class="card-spouse">Married to ${spouse}</div>` : ""}
+    `;
+  } else {
+    const first = list[0];
+    const mission = getMissionName(first);
+    const country = getCountry(first);
+
+    document.getElementById("infoCardContent").innerHTML = `
+      <h2>${mission}</h2>
+
+      <div class="card-divider"></div>
+
+      <div class="card-location-small">
+        ${getFlagImage(country)}
+        <div class="card-mission">${list.length} missionaries served here</div>
+      </div>
+
+      <div class="missionary-list">
+        ${list.map(m => `
+          <div class="missionary-list-item">
+            <strong>${getTitle(getSex(m), getName(m), getLanguage(m))}</strong>
+            <span>${getStartDate(m) || ""} – ${getEndDate(m) || ""}</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
 
   document.getElementById("infoCard").classList.remove("hidden");
 }
 
 function matchesFamily(m) {
   const selected = document.getElementById("familyFilter").value;
+
   if (selected === "all") return true;
 
   return normalize(getRelation(m)).includes(normalize(selected));
@@ -374,23 +382,21 @@ function updateStats(data) {
     data.filter(m => getSex(m) === "Female").length;
 
   const countries = new Set(
-    data.map(m => getMissionCountry(m)).filter(Boolean)
+    data.map(m => getCountry(m)).filter(Boolean)
   );
 
   const languages = new Set();
 
   data.forEach(m => {
     String(getLanguage(m) || "")
-      .split(/,|;/)
+      .split(/,|;|\/|&/)
       .map(x => x.trim())
       .filter(Boolean)
       .forEach(lang => languages.add(lang));
   });
 
   const continents = new Set(
-    data
-      .map(m => CONTINENTS[getMissionCountry(m)])
-      .filter(Boolean)
+    data.map(m => CONTINENTS[getCountry(m)]).filter(Boolean)
   );
 
   document.getElementById("countriesServed").textContent = countries.size;
@@ -403,37 +409,69 @@ function clearMarkers() {
   allMarkers = [];
 }
 
+function groupByCoordinates(data) {
+  const groups = {};
+
+  data.forEach(m => {
+    if (!m.coords) return;
+
+    const key = `${m.coords.lat},${m.coords.lng}`;
+
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(m);
+  });
+
+  return Object.values(groups);
+}
+
 function drawMarkers() {
   clearMarkers();
 
   const data = getFilteredData();
   updateStats(data);
 
+  const groups = groupByCoordinates(data);
   const bounds = [];
 
-  data.forEach(m => {
-    if (!m.coords) return;
+  groups.forEach(group => {
+    const first = group[0];
+    const coords = first.coords;
 
-    const marker = L.marker([m.coords.lat, m.coords.lng], {
-      icon: createIcon(getMarkerShape(m), getColor(getSex(m)))
+    let markerColor = getColor(getSex(first));
+    let markerShape = getMarkerShape(first);
+
+    if (group.length > 1) {
+      const hasFemale = group.some(m => getSex(m) === "Female");
+      const hasMale = group.some(m => getSex(m) !== "Female");
+
+      if (hasFemale && !hasMale) markerColor = "#ec4899";
+      if (hasMale && !hasFemale) markerColor = "#2563eb";
+      if (hasFemale && hasMale) markerColor = "#6d28d9";
+
+      if (group.some(m => isCurrentlyServing(m))) markerShape = "star";
+      else if (group.some(m => isInLaw(m))) markerShape = "heart";
+      else markerShape = "circle";
+    }
+
+    const marker = L.marker([coords.lat, coords.lng], {
+      icon: createIcon(markerShape, markerColor, group.length)
     }).addTo(map);
 
-    marker.on("mouseover", () => showInfoCard(m));
-
+    marker.on("mouseover", () => showInfoCard(group));
     marker.on("click", () => {
-      showInfoCard(m);
-      map.panTo([m.coords.lat, m.coords.lng]);
+      showInfoCard(group);
+      map.panTo([coords.lat, coords.lng]);
     });
 
     allMarkers.push(marker);
-    bounds.push([m.coords.lat, m.coords.lng]);
+    bounds.push([coords.lat, coords.lng]);
   });
 
   console.log("Markers drawn:", bounds.length);
 
   if (bounds.length > 0) {
     map.fitBounds(bounds, {
-      padding: [70, 70],
+      padding: [80, 80],
       maxZoom: 5
     });
   }
@@ -449,37 +487,29 @@ async function buildMap() {
   const coordLookup = {};
 
   coordinates.forEach(row => {
-    const city = getValue(row, ["City", "Mission City"]);
-    const state = getValue(row, ["State/Region", "State", "Mission State"]);
-    const country = getValue(row, ["Country", "Mission Country"]);
+    const missionName = getValue(row, [
+      "Official Mission name (Ex: Maryland Baltimore)",
+      "Official Mission Name",
+      "Official Mission name",
+      "Mission Name"
+    ]);
+
     const lat = Number(getValue(row, ["Latitude", "Lat"]));
     const lng = Number(getValue(row, ["Longitude", "Long", "Lng"]));
 
-    if (!city || !country || isNaN(lat) || isNaN(lng)) return;
+    if (!missionName || isNaN(lat) || isNaN(lng)) return;
 
-    coordLookup[coordKey(city, state, country)] = { lat, lng };
-    coordLookup[coordKey(city, "", country)] = { lat, lng };
+    coordLookup[normalize(missionName)] = { lat, lng };
   });
 
+  console.log("Coordinate lookup:", coordLookup);
+
   allMissionaries = missionaries.map(m => {
-    const city = getMissionCity(m);
-    const state = getMissionState(m);
-    const country = getMissionCountry(m);
-
-    const exactKey = coordKey(city, state, country);
-    const noStateKey = coordKey(city, "", country);
-
-    const coords = coordLookup[exactKey] || coordLookup[noStateKey] || null;
+    const missionName = getMissionName(m);
+    const coords = coordLookup[normalize(missionName)] || null;
 
     if (!coords) {
-      console.warn("No coordinates found for:", {
-        name: getName(m),
-        city,
-        state,
-        country,
-        exactKey,
-        noStateKey
-      });
+      console.warn("No coordinates found for mission:", missionName, m);
     }
 
     return {
