@@ -2,65 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Haag Missionary Map</title>
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet/dist/leaflet.css"
-  />
-
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-
-<div class="container">
-
-  <div class="sidebar">
-
-    <h1>🌍 Haag Missionary Map</h1>
-
-    <div class="card">
-      <h3>Statistics</h3>
-      <p>Total Missionaries: <span id="totalMissionaries">--</span></p>
-      <p>Countries Served: <span id="countriesServed">--</span></p>
-    </div>
-
-    <div class="card">
-      <h3>Legend</h3>
-      <p>🔵 Elders</p>
-      <p>🩷 Sisters</p>
-    </div>
-
-    <div class="card">
-      <h3>Filters</h3>
-
-      <label>
-        <input type="checkbox" id="showElders" checked>
-        Elders
-      </label>
-
-      <br><br>
-
-      <label>
-        <input type="checkbox" id="showSisters" checked>
-        Sisters
-      </label>
-    </div>
-
-  </div>
-
   <div id="map"></div>
 
-</div>
+  <aside class="map-panel left-panel">
+    <h1>Haag Missionary Map</h1>
 
-<div id="infoCard" class="info-card hidden">
-  <button id="closeCard" class="close-card">×</button>
-  <div id="infoCardContent"></div>
-</div>
+    <div class="panel-section">
+      <h3>Haag Siblings</h3>
+      <select id="familyFilter">
+        <option value="all">Whole Haag Family</option>
+        <option value="Darrell">Darrell</option>
+        <option value="Jeanette">Jeanette</option>
+        <option value="Jolene">Jolene</option>
+        <option value="Joyce">Joyce</option>
+        <option value="Spencer">Spencer</option>
+        <option value="Valerie">Valerie</option>
+        <option value="Veronika">Veronika</option>
+        <option value="Bonnie">Bonnie</option>
+        <option value="Brenda">Brenda</option>
+        <option value="Eileen">Eileen</option>
+        <option value="Heidi">Heidi</option>
+        <option value="Bradley">Bradley</option>
+      </select>
+    </div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="app.js"></script>
+    <div class="panel-section">
+      <h3>Legend</h3>
+
+      <label><input type="checkbox" id="showElders" checked /> <span class="dot blue"></span> Elders</label>
+      <label><input type="checkbox" id="showSisters" checked /> <span class="dot pink"></span> Sisters</label>
+
+      <div class="legend-row">★ Currently Serving</div>
+      <div class="legend-row">♥ Married In / In-law</div>
+    </div>
+  </aside>
+
+  <aside class="map-panel right-panel">
+    <h3>Statistics</h3>
+    <div class="stat"><span>Total Missionaries</span><strong id="totalMissionaries">--</strong></div>
+    <div class="stat"><span>Total Elders</span><strong id="totalElders">--</strong></div>
+    <div class="stat"><span>Total Sisters</span><strong id="totalSisters">--</strong></div>
+    <div class="stat"><span>Countries</span><strong id="countriesServed">--</strong></div>
+    <div class="stat"><span>Languages</span><strong id="totalLanguages">--</strong></div>
+    <div class="stat"><span>Continents</span><strong id="totalContinents">--</strong></div>
+  </aside>
+
+  <div id="infoCard" class="info-card hidden">
+    <button id="closeCard" class="close-card">×</button>
+    <div id="infoCardContent"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
