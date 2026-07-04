@@ -1,6 +1,6 @@
-/*====================================================
-  HAAG MISSIONARY MAP — VERSION 3
-====================================================*/
+/* =====================================================
+   HAAG FAMILY MISSIONARY MAP — VERSION 4
+===================================================== */
 
 * {
   box-sizing: border-box;
@@ -9,7 +9,6 @@
 html,
 body {
   margin: 0;
-  padding: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -23,63 +22,110 @@ body {
   height: 100vh;
 }
 
-/*====================================================
-  FLOATING PANELS
-====================================================*/
+/* FLOATING PANELS */
 
 .map-panel {
   position: absolute;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.97);
+  background: rgba(255,255,255,.97);
   border: 1px solid #d5cec3;
-  border-radius: 6px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
 }
 
 .left-panel {
   left: 18px;
   bottom: 18px;
-  width: 320px;
-  padding: 22px;
+  width: 330px;
   max-height: calc(100vh - 36px);
   overflow-y: auto;
+  padding: 22px;
 }
 
 .right-panel {
   right: 18px;
   top: 18px;
-  width: 270px;
-  padding: 18px;
+  width: 285px;
   max-height: calc(100vh - 36px);
   overflow-y: auto;
+  padding: 18px;
 }
 
-/*====================================================
-  HEADINGS
-====================================================*/
+.hidden-panel {
+  display: none;
+}
+
+.collapse-btn {
+  position: absolute;
+  z-index: 1100;
+  background: rgba(255,255,255,.97);
+  border: 1px solid #d5cec3;
+  border-radius: 999px;
+  padding: 9px 14px;
+  font-family: Georgia, "Times New Roman", serif;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,.18);
+}
+
+.menu-toggle {
+  left: 18px;
+  bottom: 18px;
+}
+
+.stats-toggle {
+  right: 18px;
+  top: 18px;
+}
+
+/* HEADERS */
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.small-header {
+  align-items: center;
+}
 
 h1 {
-  margin: 0 0 18px;
+  margin: 0;
   font-size: 28px;
   font-weight: 400;
   color: #4a4036;
+  line-height: 1;
+}
+
+.subtitle {
+  margin-top: 4px;
+  font-size: 18px;
+  color: #7a6b5c;
 }
 
 h3 {
   margin: 0 0 12px;
-  padding-bottom: 10px;
+  padding-bottom: 9px;
   font-size: 18px;
   font-weight: 400;
   border-bottom: 1px solid #e4ddd2;
+}
+
+.panel-close {
+  border: none;
+  background: transparent;
+  font-size: 25px;
+  color: #8b8177;
+  cursor: pointer;
+  line-height: 1;
 }
 
 .panel-section {
   margin-top: 24px;
 }
 
-/*====================================================
-  INPUTS
-====================================================*/
+/* INPUTS */
 
 select,
 #searchInput {
@@ -96,9 +142,50 @@ select,
 #searchInput::placeholder {
   color: #9a9186;
 }
-/*====================================================
-  LEGEND
-====================================================*/
+
+/* YEAR DROPDOWN */
+
+.year-dropdown {
+  border: 1px solid #d3cbc0;
+  border-radius: 4px;
+  background: white;
+}
+
+.year-dropdown summary {
+  padding: 11px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.year-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.year-checkboxes {
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 8px 11px 11px;
+  border-top: 1px solid #eee7dc;
+}
+
+.year-option {
+  display: block;
+  margin: 7px 0;
+  font-size: 15px;
+}
+
+.clear-years-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px;
+  font-family: inherit;
+  border: 1px solid #d3cbc0;
+  background: #f8f5ef;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* LEGEND */
 
 .legend-check {
   display: flex;
@@ -106,11 +193,6 @@ select,
   gap: 10px;
   margin: 12px 0;
   cursor: pointer;
-  user-select: none;
-}
-
-.legend-check input {
-  margin: 0;
 }
 
 .legend-dot {
@@ -147,23 +229,15 @@ select,
   margin-top: 12px;
 }
 
-/*====================================================
-  STATISTICS
-====================================================*/
+/* STATS */
 
 .stat,
 .stat-highlight {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   padding: 9px 0;
-
   border-bottom: 1px solid #ece6dc;
-}
-
-.stat:last-child {
-  border-bottom: none;
 }
 
 .stat span,
@@ -180,124 +254,19 @@ select,
 .stat-highlight {
   flex-direction: column;
   align-items: flex-start;
-
   margin-top: 14px;
-
   padding-top: 14px;
-
   border-top: 2px solid #ece6dc;
 }
 
 .stat-highlight strong {
   margin-top: 4px;
-
   color: #6f4e37;
-
   font-size: 16px;
-
   font-weight: 600;
 }
 
-/*====================================================
-  TIMELINE
-====================================================*/
-
-.timeline-panel {
-
-  position: absolute;
-
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  bottom: 18px;
-
-  width: 420px;
-
-  padding: 14px 18px;
-
-  background: rgba(255,255,255,.96);
-
-  border: 1px solid #d5cec3;
-
-  border-radius: 6px;
-
-  box-shadow: 0 10px 24px rgba(0,0,0,.16);
-
-  z-index: 1000;
-
-}
-
-.timeline-header {
-
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  margin-bottom: 10px;
-
-}
-
-.timeline-header span {
-
-  font-size: 16px;
-
-}
-
-.timeline-header strong {
-
-  color: #6f4e37;
-
-}
-
-#timelineSlider {
-
-  width: 100%;
-
-  cursor: pointer;
-
-}
-
-.timeline-actions {
-
-  display: flex;
-
-  justify-content: center;
-
-  gap: 10px;
-
-  margin-top: 10px;
-
-}
-
-.timeline-actions button {
-
-  padding: 7px 14px;
-
-  font-family: inherit;
-
-  border: 1px solid #d5cec3;
-
-  background: white;
-
-  border-radius: 4px;
-
-  cursor: pointer;
-
-  transition: .18s;
-
-}
-
-.timeline-actions button:hover {
-
-  background: #f5f1ea;
-
-}
-/*====================================================
-  CUSTOM MARKERS — OPTION B
-====================================================*/
+/* MARKERS */
 
 .custom-marker {
   background: transparent;
@@ -305,31 +274,24 @@ select,
 }
 
 .mission-marker {
-  width: 28px;
-  height: 28px;
-
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-
   background: var(--marker-color);
-
   border: 3px solid white;
   border-radius: 50%;
-
-  box-shadow: 0 2px 6px rgba(0,0,0,.35);
-
+  box-shadow: 0 2px 7px rgba(0,0,0,.35);
   color: white;
-
   font-family: Arial, sans-serif;
   font-weight: bold;
-
   transition: transform .15s ease, box-shadow .15s ease;
 }
 
 .mission-marker:hover {
-  transform: scale(1.15);
-  box-shadow: 0 4px 10px rgba(0,0,0,.4);
+  transform: scale(1.16);
+  box-shadow: 0 4px 12px rgba(0,0,0,.42);
 }
 
 .marker-check {
@@ -342,12 +304,17 @@ select,
   line-height: 1;
 }
 
+.duplicate-marker {
+  width: 34px;
+  height: 34px;
+}
+
 .heart-marker {
   background: transparent;
   border: none;
   box-shadow: none;
   color: var(--marker-color);
-  font-size: 30px;
+  font-size: 32px;
 }
 
 .heart-marker::before {
@@ -356,12 +323,10 @@ select,
   text-shadow: 0 1px 4px rgba(0,0,0,.35);
 }
 
-/*====================================================
-  LEAFLET POPUPS
-====================================================*/
+/* LEAFLET POPUPS */
 
 .haag-leaflet-popup .leaflet-popup-content-wrapper {
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #d5cec3;
   background: rgba(255,255,255,.98);
   box-shadow: 0 10px 26px rgba(0,0,0,.24);
@@ -442,7 +407,6 @@ select,
 
 .card-date-main {
   font-size: 15px;
-  color: #40352d;
 }
 
 .currently-serving {
@@ -478,9 +442,8 @@ select,
   font-style: italic;
   color: #666;
 }
-/*====================================================
-  CLICKABLE MISSIONARY LIST
-====================================================*/
+
+/* MULTI MISSION LIST */
 
 .missionary-list {
   margin-top: 14px;
@@ -489,33 +452,22 @@ select,
 .missionary-list-item {
   width: 100%;
   display: block;
-
   background: white;
-
   border: 1px solid #e8e2d8;
   border-radius: 6px;
-
   padding: 10px 12px;
   margin-bottom: 8px;
-
   cursor: pointer;
-
-  transition:
-    background .18s ease,
-    transform .15s ease,
-    box-shadow .18s ease;
-
+  transition: background .18s ease, transform .15s ease, box-shadow .18s ease;
   text-align: center;
-
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: inherit;
 }
 
-.missionary-list-item:hover {
+.missionary-list-item:hover,
+.missionary-list-item.active {
   background: #f8f5ef;
   transform: translateY(-2px);
-
-  box-shadow:
-    0 4px 10px rgba(0,0,0,.08);
+  box-shadow: 0 4px 10px rgba(0,0,0,.08);
 }
 
 .missionary-list-item strong {
@@ -530,151 +482,154 @@ select,
   font-size: 13px;
 }
 
-/*====================================================
-  LEAFLET CONTROLS
-====================================================*/
+/* SECOND DETAIL POPUP */
 
-.leaflet-control-zoom {
-  border-radius: 6px !important;
-  overflow: hidden;
-
-  box-shadow:
-    0 3px 10px rgba(0,0,0,.18);
+.detail-preview {
+  position: fixed;
+  z-index: 999999;
+  width: 330px;
+  background: rgba(255,255,255,.98);
+  border: 1px solid #d5cec3;
+  border-radius: 8px;
+  box-shadow: 0 10px 26px rgba(0,0,0,.24);
 }
 
-.leaflet-bar {
+.detail-preview.hidden {
+  display: none;
+}
+
+.detail-preview .leaflet-mission-popup {
+  padding: 18px;
+}
+
+/* LEAFLET CONTROLS */
+
+.leaflet-control-zoom {
+  border-radius: 999px !important;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,.18);
+}
+
+.leaflet-control-zoom.leaflet-bar {
+  display: flex;
+  flex-direction: row;
   border: 1px solid #d5cec3 !important;
 }
 
 .leaflet-control-zoom a {
+  border-bottom: none !important;
+  border-right: 1px solid #d5cec3 !important;
   color: #555;
+}
+
+.leaflet-control-zoom a:last-child {
+  border-right: none !important;
+}
+
+.leaflet-control-layers {
+  border: 1px solid #d5cec3 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 3px 10px rgba(0,0,0,.18);
+  font-family: Georgia, "Times New Roman", serif;
 }
 
 .leaflet-container {
   background: #ddd7ca;
 }
 
-/*====================================================
-  MOBILE RESPONSIVE
-====================================================*/
+/* MOBILE */
 
 @media (max-width: 900px) {
-
   .left-panel {
     left: 10px;
     right: 10px;
     bottom: 10px;
-
     width: auto;
-    max-height: 38vh;
-    overflow-y: auto;
+    max-height: 72vh;
     padding: 16px;
   }
 
   .right-panel {
     right: 10px;
     top: 10px;
-
-    width: 185px;
+    width: 220px;
+    max-height: 58vh;
     padding: 14px;
   }
 
-  .timeline-panel {
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-
-    width: auto;
-
-    transform: none;
+  h1 {
+    font-size: 23px;
   }
 
-  h1 {
-    font-size: 22px;
+  .subtitle {
+    font-size: 16px;
   }
 
   h3 {
     font-size: 16px;
   }
 
-  .stat {
-    font-size: 13px;
-  }
-
-  .stat strong {
-    font-size: 15px;
-  }
-
   .haag-leaflet-popup .leaflet-popup-content {
-    width: 270px !important;
+    width: 280px !important;
   }
 
+  .detail-preview {
+    width: 280px;
+  }
 }
 
 @media (max-width: 600px) {
-
-  .left-panel {
-    max-height: 34vh;
-  }
-
   .right-panel {
-    width: 165px;
+    width: 190px;
   }
 
-  .timeline-panel {
-    padding: 10px;
+  .detail-preview {
+    left: 10px !important;
+    right: 10px !important;
+    top: auto !important;
+    bottom: 10px !important;
+    width: auto;
   }
 
-  .leaflet-control-zoom {
-    transform: scale(.92);
-    transform-origin: top left;
+  .leaflet-control-layers {
+    max-width: 160px;
   }
-
 }
 
-/*====================================================
-  ANIMATIONS
-====================================================*/
+/* ANIMATIONS */
 
 .mission-marker {
   animation: markerFade .25s ease;
 }
 
 @keyframes markerFade {
-
   from {
     opacity: 0;
     transform: scale(.6);
   }
-
   to {
     opacity: 1;
     transform: scale(1);
   }
-
 }
 
-.leaflet-popup {
+.leaflet-popup,
+.detail-preview {
   animation: popupFade .18s ease;
 }
 
 @keyframes popupFade {
-
   from {
     opacity: 0;
     transform: translateY(8px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
-
 }
 
-/*====================================================
-  SCROLLBAR
-====================================================*/
+/* SCROLLBAR */
 
 ::-webkit-scrollbar {
   width: 8px;
@@ -687,88 +642,4 @@ select,
 
 ::-webkit-scrollbar-track {
   background: transparent;
-
-  .detail-preview {
-  position: fixed;
-  z-index: 5000;
-  width: 330px;
-  background: rgba(255,255,255,.98);
-  border: 1px solid #d5cec3;
-  border-radius: 6px;
-  box-shadow: 0 10px 26px rgba(0,0,0,.24);
-}
-
-.detail-preview.hidden {
-  display: none;
-}
-}
-.year-dropdown {
-  border: 1px solid #d3cbc0;
-  border-radius: 4px;
-  background: white;
-}
-
-.year-dropdown summary {
-  padding: 11px;
-  cursor: pointer;
-  list-style: none;
-}
-
-.year-dropdown summary::-webkit-details-marker {
-  display: none;
-}
-
-.year-checkboxes {
-  max-height: 180px;
-  overflow-y: auto;
-  padding: 8px 11px 11px;
-  border-top: 1px solid #eee7dc;
-}
-
-.year-option {
-  display: block;
-  margin: 7px 0;
-  font-size: 15px;
-}
-
-.clear-years-btn {
-  margin-top: 8px;
-  width: 100%;
-  padding: 8px;
-  font-family: Georgia, "Times New Roman", serif;
-  border: 1px solid #d3cbc0;
-  background: #f8f5ef;
-  cursor: pointer;
-}
-.detail-preview {
-  position: fixed;
-  z-index: 5000;
-  width: 330px;
-  background: rgba(255,255,255,.98);
-  border: 1px solid #d5cec3;
-  border-radius: 6px;
-  box-shadow: 0 10px 26px rgba(0,0,0,.24);
-}
-
-.detail-preview.hidden {
-  display: none;
-}
-
-.detail-preview .leaflet-mission-popup {
-  padding: 18px;
-}
-
-.detail-preview {
-  position: fixed;
-  z-index: 999999;
-  width: 330px;
-  background: rgba(255,255,255,.98);
-  border: 1px solid #d5cec3;
-  border-radius: 6px;
-  box-shadow: 0 10px 26px rgba(0,0,0,.24);
-  pointer-events: auto;
-}
-
-.detail-preview.hidden {
-  display: none;
 }
