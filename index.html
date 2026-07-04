@@ -45,18 +45,18 @@
     </div>
 
     <div class="panel-section">
-  <h3>Years Served</h3>
+      <h3>Years Served</h3>
 
-  <details class="year-dropdown">
-    <summary>Select Years</summary>
-    <div id="yearCheckboxes" class="year-checkboxes"></div>
-  </details>
+      <details class="year-dropdown">
+        <summary>Select Years</summary>
+        <div id="yearCheckboxes" class="year-checkboxes"></div>
+      </details>
 
-  <button id="clearYears" type="button" class="clear-years-btn">
-    Clear Years
-  </button>
-</div>
-    
+      <button id="clearYears" type="button" class="clear-years-btn">
+        Clear Years
+      </button>
+    </div>
+
     <div class="panel-section">
       <h3>Legend</h3>
 
@@ -118,23 +118,16 @@
     </div>
   </aside>
 
-    <input type="range" id="timelineSlider" min="1900" max="2035" value="2035" />
+  <div id="detailPreview" class="detail-preview hidden"></div>
 
-    <div class="timeline-actions">
-      <button id="showAllYears" type="button">All Years</button>
-      <button id="showToday" type="button">Today</button>
-    </div>
-  </div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<div id="detailPreview" class="detail-preview hidden"></div>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="data.js"></script>
-<script src="helpers.js"></script>
-<script src="popups.js"></script>
-<script src="markers.js"></script>
-<script src="stats.js"></script>
-<script src="filters.js"></script>
-<script src="app.js"></script>
+  <script src="data.js"></script>
+  <script src="helpers.js"></script>
+  <script src="popups.js"></script>
+  <script src="markers.js"></script>
+  <script src="stats.js"></script>
+  <script src="filters.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
