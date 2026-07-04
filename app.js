@@ -282,14 +282,61 @@ function createIcon(shape, color, count = null) {
   });
 }
 
-function getFlagImage(country) {
-  const code = COUNTRY_CODES[country];
+function getFlagImage(country, state) {
+  const cleanCountry = String(country || "").trim();
+  const cleanState = String(state || "").trim();
+
+  const countryCodes = {
+    "United States": "us",
+    USA: "us",
+    US: "us",
+    Brazil: "br",
+    Denmark: "dk",
+    Germany: "de",
+    Italy: "it",
+    France: "fr",
+    Spain: "es",
+    Mexico: "mx",
+    Canada: "ca",
+    England: "gb",
+    "United Kingdom": "gb",
+    Argentina: "ar",
+    Chile: "cl",
+    Peru: "pe",
+    Colombia: "co",
+    Philippines: "ph",
+    Japan: "jp",
+    Australia: "au",
+    "New Zealand": "nz"
+  };
+
+  const regionFlags = {
+    "United States": {
+      Maryland: "https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/us/maryland.svg",
+      Louisiana: "https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/us/louisiana.svg",
+      Utah: "https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/us/utah.svg",
+      Ohio: "https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/us/ohio.svg",
+      Washington: "https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/us/washington.svg",
+      Oregon: "https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/us/oregon.svg",
+      Connecticut: "https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/us/connecticut.svg"
+    },
+    Brazil: {
+      Goiás: "https://upload.wikimedia.org/wikipedia/commons/0/0d/Bandeira_de_Goi%C3%A1s.svg",
+      "Rio de Janeiro": "https://upload.wikimedia.org/wikipedia/commons/7/73/Bandeira_do_estado_do_Rio_de_Janeiro.svg"
+    }
+  };
+
+  if (regionFlags[cleanCountry] && regionFlags[cleanCountry][cleanState]) {
+    return `<img class="flag-img" src="${regionFlags[cleanCountry][cleanState]}" alt="${cleanState} flag">`;
+  }
+
+  const code = countryCodes[cleanCountry];
 
   if (!code) {
     return `<div class="flag-placeholder">🌍</div>`;
   }
 
-  return `<img class="flag-img" src="https://flagcdn.com/w80/${code}.png" alt="${country} flag">`;
+  return `<img class="flag-img" src="https://flagcdn.com/w80/${code}.png" alt="${cleanCountry} flag">`;
 }
 
 function showInfoCard(missionaries) {
@@ -303,6 +350,7 @@ function showInfoCard(missionaries) {
     const language = getLanguage(m);
     const mission = getMissionName(m);
     const country = getCountry(m);
+    const state = getState(m);
     const start = getStartDate(m);
     const end = getEndDate(m);
     const presidents = getPresidents(m);
@@ -314,7 +362,7 @@ function showInfoCard(missionaries) {
       <div class="card-divider"></div>
 
       <div class="card-location-small">
-        ${getFlagImage(country)}
+        ${getFlagImage(country, state)}
         <div class="card-mission">${mission || ""}</div>
       </div>
 
