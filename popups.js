@@ -136,8 +136,28 @@ function attachGroupPopupEvents(marker, group) {
           showDetailPreview(missionary, button);
         });
       });
+
+      document.addEventListener("click", closeDetailOnOutsideClick);
     }, 0);
   });
+
+  marker.on("popupclose", () => {
+    hideDetailPreview();
+    document.removeEventListener("click", closeDetailOnOutsideClick);
+  });
+}
+
+function closeDetailOnOutsideClick(e) {
+  const preview = document.getElementById("detailPreview");
+  if (!preview || preview.classList.contains("hidden")) return;
+
+  const clickedPreview = preview.contains(e.target);
+  const clickedMissionary = e.target.closest(".missionary-list-item");
+
+  if (!clickedPreview && !clickedMissionary) {
+    hideDetailPreview();
+  }
+}
 
   marker.on("popupclose", hideDetailPreview);
 }
