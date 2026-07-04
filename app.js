@@ -299,6 +299,36 @@ function formatPresidents(presidents) {
     .filter(Boolean)
     .join("<br>");
 }
+
+function formatMissionDate(dateString) {
+    if (!dateString) return "";
+
+    const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+    ];
+
+    const parts = String(dateString).split("/");
+
+    if (parts.length !== 2) return dateString;
+
+    const month = parseInt(parts[0], 10);
+    const year = parts[1];
+
+    if (month < 1 || month > 12) return dateString;
+
+    return `${months[month - 1]} ${year}`;
+}
  
 function showInfoCard(missionaries) {
   const list = Array.isArray(missionaries) ? missionaries : [missionaries];
@@ -327,7 +357,11 @@ function showInfoCard(missionaries) {
         <div class="card-mission">${mission || ""}</div>
       </div>
 
-      <div class="card-dates">${start || ""} – ${end || ""}</div>
+      <div class="card-dates">
+        ${formatMissionDate(start)}
+        –
+        ${formatMissionDate(end)}
+      </div>
 
       ${presidents ? `<div class="card-presidents">${formatPresidents(presidents)}</div>` : ""}
 
@@ -353,7 +387,11 @@ function showInfoCard(missionaries) {
         ${list.map(m => `
           <div class="missionary-list-item">
             <strong>${getTitle(getSex(m), getName(m), getLanguage(m))}</strong>
-            <span>${getStartDate(m) || ""} – ${getEndDate(m) || ""}</span>
+            <span>
+              ${formatMissionDate(getStartDate(m))}
+              –
+              ${formatMissionDate(getEndDate(m))}
+            </span>
           </div>
         `).join("")}
       </div>
