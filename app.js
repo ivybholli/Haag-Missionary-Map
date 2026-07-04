@@ -48,7 +48,7 @@ function formatMissionDate(v){const p=parseMonthYear(v);if(!p)return v||"";const
 function isCurrentlyServing(m){const e=parseMonthYear(getEndDate(m));if(!e)return false;return new Date(e.year,e.month,0)>=new Date();}
 function missionLength(start,end){const s=parseMonthYear(start),e=parseMonthYear(end);if(!s||!e)return "";const months=(e.year-s.year)*12+(e.month-s.month)+1;return `${months} month${months===1?"":"s"}`;}
 function formatMissionDates(m){const s=getStartDate(m),e=getEndDate(m);if(isCurrentlyServing(m))return `<div class="card-date-main">${formatMissionDate(s)} – Present</div><div class="currently-serving">✓ Currently Serving</div>`;return `<div class="card-date-main">${formatMissionDate(s)} – ${formatMissionDate(e)}</div><div class="mission-length">${missionLength(s,e)}</div>`;}
-function formatPresidents(t){return String(t||"").split(";").map(x=>x.trim()).filter(Boolean).join("<br>");}
+function formatPresidents(t){return String(t||"").split(";").map(x=>x.trim()).filter(Boolean).join("<brazilFlags>");}
 function missionaryYears(m){const s=parseMonthYear(getStartDate(m)),e=parseMonthYear(getEndDate(m));if(!s||!e)return [];const arr=[];for(let y=s.year;y<=e.year;y++)arr.push(y);return arr;}
 
 function getFlagImage(country, state) {
