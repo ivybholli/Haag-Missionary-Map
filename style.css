@@ -702,3 +702,41 @@ select,
   display: none;
 }
 }
+.year-dropdown {
+  border: 1px solid #d3cbc0;
+  border-radius: 4px;
+  background: white;
+}
+
+.year-dropdown summary {
+  padding: 11px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.year-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.year-checkboxes {
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 8px 11px 11px;
+  border-top: 1px solid #eee7dc;
+}
+
+.year-option {
+  display: block;
+  margin: 7px 0;
+  font-size: 15px;
+}
+
+.clear-years-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px;
+  font-family: Georgia, "Times New Roman", serif;
+  border: 1px solid #d3cbc0;
+  background: #f8f5ef;
+  cursor: pointer;
+}
