@@ -115,3 +115,29 @@ html,body{background:#020711;}
   .maplibregl-ctrl-bottom-right{right:12px!important;bottom:76px!important;}
   .maplibregl-ctrl-group button{width:44px!important;height:44px!important;}
 }
+
+.submit-mission-container{
+    margin:18px 0 18px;
+}
+
+.submit-mission-btn{
+    display:block;
+    width:100%;
+    padding:12px 16px;
+    background:#4E7A5D;
+    color:white;
+    text-decoration:none;
+    text-align:center;
+    font-family:inherit;
+    font-size:16px;
+    font-weight:600;
+    border-radius:8px;
+    transition:all .2s ease;
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
+
+.submit-mission-btn:hover{
+    background:#3E654C;
+    transform:translateY(-1px);
+    box-shadow:0 4px 12px rgba(0,0,0,.18);
+}
