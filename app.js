@@ -95,7 +95,7 @@ function getLanguage(m){return getValue(m,["Assigned Language(s)","Assigned Lang
 function getStartDate(m){return getValue(m,["Start Date (MM/YYYY)","Start Date"])}
 function getEndDate(m){return getValue(m,["End Date (MM/YYYY)","End Date"])}
 function getPresidents(m){return getValue(m,["Mission President Names (Ex: President and Sister Piros; President and Sister Varner)","Mission President Names","Mission Presidents"])}
-function getSpouse(m){return getValue(m,["Your Spouse's Name (If Applicable)","Spouse","Spouse Name"])}
+function getSpouse(m){return getValue(m,["Your Spouse's Name (Maiden Name) (If Applicable)","Spouse","Spouse Name"])}
 function getMissionType(m){return getValue(m,["Type of Mission","Mission Type","Type of mission","Mission type"])}
 
 function getTitle(sex,name,language){if(sex!=="Female")return `Elder ${name||""}`;const first=String(language||"English").split(",")[0].trim();const sister={Spanish:"Hermana",Italian:"Sorella",French:"Sœur"};return `${sister[first]||"Sister"} ${name||""}`;}
