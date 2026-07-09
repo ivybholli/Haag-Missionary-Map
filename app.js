@@ -1,4 +1,4 @@
-console.log("🔥 HAAG FAMILY MISSIONARY MAP v4 LOADED");
+console.log("HAAG FAMILY MISSIONARY MAP LOADED");
 
 const SHEET_ID = "15BJwH_54gL9fWGCtg0FOwF_qYy4mAm7KWN1LVnSBl5w";
 const MISSIONARY_SHEET_NAME = "Form Responses 1";
