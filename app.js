@@ -192,15 +192,106 @@ function countryFlagUrl(country){
   return code ? `https://flagcdn.com/w80/${code}.png` : "";
 }
 
-function getFlagImage(country,state){
-  const c = String(country||"").replace(/\s+/g," ").trim();
-  const st = String(state||"").replace(/\s+/g," ").trim();
-  const fallback = countryFlagUrl(c);
-  const url = subdivisionFlagUrl(c, st) || fallback;
+const COUNTRY_CODES = {
+  "united states":"us", "usa":"us", "us":"us",
+  "canada":"ca", "brazil":"br", "germany":"de", "australia":"au",
+  "denmark":"dk", "italy":"it", "france":"fr", "spain":"es",
+  "mexico":"mx", "england":"gb", "united kingdom":"gb",
+  "argentina":"ar", "chile":"cl", "peru":"pe", "colombia":"co",
+  "philippines":"ph", "japan":"jp", "new zealand":"nz"
+};
 
-  if(url){
-    const alt = st ? `${st}, ${c} flag` : `${c} flag`;
-    return `<img class="flag-img" src="${url}" alt="${escapeAttr(alt)}" onerror="this.onerror=null;this.src='${fallback}';">`;
+const US_STATE_FLAG_FILES = {
+  "alabama":"Flag of Alabama.svg",
+  "alaska":"Flag of Alaska.svg",
+  "arizona":"Flag of Arizona.svg",
+  "arkansas":"Flag of Arkansas.svg",
+  "california":"Flag of California.svg",
+  "colorado":"Flag of Colorado.svg",
+  "connecticut":"Flag of Connecticut.svg",
+  "delaware":"Flag of Delaware.svg",
+  "florida":"Flag of Florida.svg",
+  "georgia":"Flag of Georgia (U.S. state).svg",
+  "hawaii":"Flag of Hawaii.svg",
+  "idaho":"Flag of Idaho.svg",
+  "illinois":"Flag of Illinois.svg",
+  "indiana":"Flag of Indiana.svg",
+  "iowa":"Flag of Iowa.svg",
+  "kansas":"Flag of Kansas.svg",
+  "kentucky":"Flag of Kentucky.svg",
+  "louisiana":"Flag of Louisiana.svg",
+  "maine":"Flag of Maine.svg",
+  "maryland":"Flag of Maryland.svg",
+  "massachusetts":"Flag of Massachusetts.svg",
+  "michigan":"Flag of Michigan.svg",
+  "minnesota":"Flag of Minnesota.svg",
+  "mississippi":"Flag of Mississippi.svg",
+  "missouri":"Flag of Missouri.svg",
+  "montana":"Flag of Montana.svg",
+  "nebraska":"Flag of Nebraska.svg",
+  "nevada":"Flag of Nevada.svg",
+  "new hampshire":"Flag of New Hampshire.svg",
+  "new jersey":"Flag of New Jersey.svg",
+  "new mexico":"Flag of New Mexico.svg",
+  "new york":"Flag of New York.svg",
+  "north carolina":"Flag of North Carolina.svg",
+  "north dakota":"Flag of North Dakota.svg",
+  "ohio":"Flag of Ohio.svg",
+  "oklahoma":"Flag of Oklahoma.svg",
+  "oregon":"Flag of Oregon.svg",
+  "pennsylvania":"Flag of Pennsylvania.svg",
+  "rhode island":"Flag of Rhode Island.svg",
+  "south carolina":"Flag of South Carolina.svg",
+  "south dakota":"Flag of South Dakota.svg",
+  "tennessee":"Flag of Tennessee.svg",
+  "texas":"Flag of Texas.svg",
+  "utah":"Flag of Utah.svg",
+  "vermont":"Flag of Vermont.svg",
+  "virginia":"Flag of Virginia.svg",
+  "washington":"Flag of Washington.svg",
+  "west virginia":"Flag of West Virginia.svg",
+  "wisconsin":"Flag of Wisconsin.svg",
+  "wyoming":"Flag of Wyoming.svg"
+};
+
+function normalizeFlagText(value) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function commonsFilePath(filename) {
+  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(filename).replace(/%20/g, "_")}`;
+}
+
+function countryFlagUrl(country) {
+  const code = COUNTRY_CODES[normalizeFlagText(country)];
+  return code ? `https://flagcdn.com/w80/${code}.png` : "";
+}
+
+function getFlagImage(country, state) {
+  const c = String(country || "").replace(/\s+/g, " ").trim();
+  const st = String(state || "").replace(/\s+/g, " ").trim();
+
+  const countryKey = normalizeFlagText(c);
+  const stateKey = normalizeFlagText(st);
+  const fallback = countryFlagUrl(c);
+
+  let stateFlag = "";
+
+  if (["united states", "usa", "us"].includes(countryKey) && US_STATE_FLAG_FILES[stateKey]) {
+    stateFlag = commonsFilePath(US_STATE_FLAG_FILES[stateKey]);
+  } else if (st) {
+    stateFlag = commonsFilePath(`Flag of ${st}.svg`);
+  }
+
+  const url = stateFlag || fallback;
+
+  if (url) {
+    return `<img class="flag-img" src="${url}" alt="${escapeAttr(st || c)} flag" onerror="this.onerror=null;this.src='${fallback}';">`;
   }
 
   return `<div class="flag-placeholder">🌍</div>`;
