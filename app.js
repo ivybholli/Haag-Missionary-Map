@@ -50,7 +50,6 @@ map.dragRotate.disable();
 map.touchZoomRotate.disableRotation();
 let currentPopup = null;
 
-
 const COUNTRY_VIEWS = {
   "united states": { center: [-98.5795, 39.8283], zoom: 3.2 },
   "usa": { center: [-98.5795, 39.8283], zoom: 3.2 },
@@ -125,176 +124,76 @@ function missionMetaHtml(m){const lang=getLanguage(m);const pieces=[];if(lang)pi
 function assignmentLinksHtml(m){if(!isOriginalAssignment(m)){const original=findOriginalAssignment(m);return original?`<div class="assignment-links">${makeMissionLink(original,"See Original Assignment","original-link")}</div>`:"";}const related=findAdditionalAssignments(m);if(!related.length)return "";return `<div class="assignment-links"><div class="assignment-links-title">Additional Assignments</div>${related.map(r=>makeMissionLink(r,getMissionType(r)||getMissionName(r),"related-link")).join("")}</div>`;}
 function spouseHtml(m){const spouse=getSpouse(m);if(!spouse)return "";const spouseMissionary=findSpouseMissionary(m);if(!spouseMissionary)return `<div class="card-spouse">Married to ${escapeHtml(spouse)}</div>`;return `<div class="card-spouse">Married to ${makeMissionLink(spouseMissionary,spouse,"spouse-link")}</div>`;}
 
+/* ==========================================================
+   NEW FLAG SYSTEM
+   ========================================================== */
 
 const COUNTRY_CODES = {
-  "afghanistan":"af","albania":"al","algeria":"dz","andorra":"ad","angola":"ao","argentina":"ar","armenia":"am","australia":"au","austria":"at","azerbaijan":"az",
-  "bahamas":"bs","bahrain":"bh","bangladesh":"bd","barbados":"bb","belarus":"by","belgium":"be","belize":"bz","benin":"bj","bolivia":"bo","brazil":"br","bulgaria":"bg",
-  "cambodia":"kh","cameroon":"cm","canada":"ca","chile":"cl","china":"cn","colombia":"co","costa rica":"cr","croatia":"hr","czech republic":"cz","denmark":"dk","dominican republic":"do",
-  "ecuador":"ec","egypt":"eg","el salvador":"sv","england":"gb","estonia":"ee","ethiopia":"et","finland":"fi","france":"fr","germany":"de","ghana":"gh","greece":"gr","guatemala":"gt",
-  "haiti":"ht","honduras":"hn","hong kong":"hk","hungary":"hu","iceland":"is","india":"in","indonesia":"id","ireland":"ie","israel":"il","italy":"it","jamaica":"jm","japan":"jp",
-  "kenya":"ke","south korea":"kr","korea":"kr","latvia":"lv","lithuania":"lt","malaysia":"my","mexico":"mx","netherlands":"nl","new zealand":"nz","nicaragua":"ni","nigeria":"ng",
-  "norway":"no","panama":"pa","paraguay":"py","peru":"pe","philippines":"ph","poland":"pl","portugal":"pt","puerto rico":"pr","romania":"ro","russia":"ru","samoa":"ws","scotland":"gb",
-  "singapore":"sg","south africa":"za","spain":"es","sweden":"se","switzerland":"ch","taiwan":"tw","thailand":"th","tonga":"to","turkey":"tr","ukraine":"ua","united kingdom":"gb",
-  "united states":"us","usa":"us","us":"us","uruguay":"uy","venezuela":"ve","vietnam":"vn","wales":"gb","zimbabwe":"zw"
+  "united states":"us",
+  "usa":"us",
+  "us":"us",
+  "canada":"ca",
+  "brazil":"br",
+  "germany":"de",
+  "australia":"au",
+  "new zealand":"nz",
+  "england":"gb",
+  "united kingdom":"gb",
+  "france":"fr",
+  "italy":"it",
+  "spain":"es",
+  "mexico":"mx",
+  "japan":"jp",
+  "philippines":"ph",
+  "argentina":"ar",
+  "chile":"cl",
+  "peru":"pe",
+  "colombia":"co",
+  "denmark":"dk"
 };
 
-const US_STATE_CODES = {
-  "alabama":"al","alaska":"ak","arizona":"az","arkansas":"ar","california":"ca","colorado":"co","connecticut":"ct","delaware":"de","florida":"fl","georgia":"ga",
-  "hawaii":"hi","idaho":"id","illinois":"il","indiana":"in","iowa":"ia","kansas":"ks","kentucky":"ky","louisiana":"la","maine":"me","maryland":"md",
-  "massachusetts":"ma","michigan":"mi","minnesota":"mn","mississippi":"ms","missouri":"mo","montana":"mt","nebraska":"ne","nevada":"nv","new hampshire":"nh","new jersey":"nj",
-  "new mexico":"nm","new york":"ny","north carolina":"nc","north dakota":"nd","ohio":"oh","oklahoma":"ok","oregon":"or","pennsylvania":"pa","rhode island":"ri","south carolina":"sc",
-  "south dakota":"sd","tennessee":"tn","texas":"tx","utah":"ut","vermont":"vt","virginia":"va","washington":"wa","west virginia":"wv","wisconsin":"wi","wyoming":"wy",
-  "district of columbia":"dc","washington dc":"dc","washington d.c.":"dc"
-};
+const US_STATE_FLAGS = {};
 
-const SUBDIVISION_CODES = {
-  "canada": {
-    "alberta":"ab","british columbia":"bc","manitoba":"mb","new brunswick":"nb","newfoundland and labrador":"nl","nova scotia":"ns","ontario":"on","prince edward island":"pe",
-    "quebec":"qc","saskatchewan":"sk","northwest territories":"nt","nunavut":"nu","yukon":"yt"
-  },
-  "australia": {
-    "new south wales":"nsw","queensland":"qld","south australia":"sa","tasmania":"tas","victoria":"vic","western australia":"wa","australian capital territory":"act","northern territory":"nt"
-  },
-  "germany": {
-    "baden-wurttemberg":"bw","baden württemberg":"bw","bavaria":"by","bayern":"by","berlin":"be","brandenburg":"bb","bremen":"hb","hamburg":"hh","hesse":"he","hessen":"he",
-    "lower saxony":"ni","niedersachsen":"ni","mecklenburg-vorpommern":"mv","north rhine-westphalia":"nw","nordrhein-westfalen":"nw","rhineland-palatinate":"rp","rheinland-pfalz":"rp",
-    "saarland":"sl","saxony":"sn","sachsen":"sn","saxony-anhalt":"st","sachsen-anhalt":"st","schleswig-holstein":"sh","thuringia":"th","thüringen":"th"
-  },
-  "brazil": {
-    "acre":"ac","alagoas":"al","amapa":"ap","amapá":"ap","amazonas":"am","bahia":"ba","ceara":"ce","ceará":"ce","distrito federal":"df","espirito santo":"es","espírito santo":"es",
-    "goias":"go","goiás":"go","maranhao":"ma","maranhão":"ma","mato grosso":"mt","mato grosso do sul":"ms","minas gerais":"mg","para":"pa","pará":"pa","paraiba":"pb","paraíba":"pb",
-    "parana":"pr","paraná":"pr","pernambuco":"pe","piaui":"pi","piauí":"pi","rio de janeiro":"rj","rio grande do norte":"rn","rio grande do sul":"rs","rondonia":"ro","rondônia":"ro",
-    "roraima":"rr","santa catarina":"sc","sao paulo":"sp","são paulo":"sp","sergipe":"se","tocantins":"to"
-  }
-};
+[
+"Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia",
+"Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland",
+"Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire",
+"New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon",
+"Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont",
+"Virginia","Washington","West Virginia","Wisconsin","Wyoming"
+].forEach(state=>{
+    US_STATE_FLAGS[state.toLowerCase()] =
+      `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent("Flag of "+state+".svg")}`;
+});
 
-function subdivisionFlagUrl(country, state){
-  const c = normalizeNoAccent(country);
-  const s = normalizeNoAccent(state);
-  if(!c || !s) return "";
-
-  if(["united states","usa","us"].includes(c) && US_STATE_CODES[s]){
-    return `https://cdn.jsdelivr.net/npm/us-state-flags@1.0.0/svg/${US_STATE_CODES[s]}.svg`;
-  }
-
-  const countryIso = COUNTRY_CODES[c];
-  const subdivisionIso = SUBDIVISION_CODES[c] && SUBDIVISION_CODES[c][s];
-  if(countryIso && subdivisionIso){
-    return `https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${countryIso}-${subdivisionIso}.svg`;
-  }
-
-  return "";
+function countryFlag(country){
+    const code = COUNTRY_CODES[normalize(country)];
+    return code ? `https://flagcdn.com/w80/${code}.png` : "";
 }
 
-function countryFlagUrl(country){
-  const c = normalizeNoAccent(country);
-  const code = COUNTRY_CODES[c];
-  return code ? `https://flagcdn.com/w80/${code}.png` : "";
-}
+function getFlagImage(country,state){
 
-const COUNTRY_CODES = {
-  "united states":"us", "usa":"us", "us":"us",
-  "canada":"ca", "brazil":"br", "germany":"de", "australia":"au",
-  "denmark":"dk", "italy":"it", "france":"fr", "spain":"es",
-  "mexico":"mx", "england":"gb", "united kingdom":"gb",
-  "argentina":"ar", "chile":"cl", "peru":"pe", "colombia":"co",
-  "philippines":"ph", "japan":"jp", "new zealand":"nz"
-};
+    const s = normalize(state);
+    const c = normalize(country);
 
-const US_STATE_FLAG_FILES = {
-  "alabama":"Flag of Alabama.svg",
-  "alaska":"Flag of Alaska.svg",
-  "arizona":"Flag of Arizona.svg",
-  "arkansas":"Flag of Arkansas.svg",
-  "california":"Flag of California.svg",
-  "colorado":"Flag of Colorado.svg",
-  "connecticut":"Flag of Connecticut.svg",
-  "delaware":"Flag of Delaware.svg",
-  "florida":"Flag of Florida.svg",
-  "georgia":"Flag of Georgia (U.S. state).svg",
-  "hawaii":"Flag of Hawaii.svg",
-  "idaho":"Flag of Idaho.svg",
-  "illinois":"Flag of Illinois.svg",
-  "indiana":"Flag of Indiana.svg",
-  "iowa":"Flag of Iowa.svg",
-  "kansas":"Flag of Kansas.svg",
-  "kentucky":"Flag of Kentucky.svg",
-  "louisiana":"Flag of Louisiana.svg",
-  "maine":"Flag of Maine.svg",
-  "maryland":"Flag of Maryland.svg",
-  "massachusetts":"Flag of Massachusetts.svg",
-  "michigan":"Flag of Michigan.svg",
-  "minnesota":"Flag of Minnesota.svg",
-  "mississippi":"Flag of Mississippi.svg",
-  "missouri":"Flag of Missouri.svg",
-  "montana":"Flag of Montana.svg",
-  "nebraska":"Flag of Nebraska.svg",
-  "nevada":"Flag of Nevada.svg",
-  "new hampshire":"Flag of New Hampshire.svg",
-  "new jersey":"Flag of New Jersey.svg",
-  "new mexico":"Flag of New Mexico.svg",
-  "new york":"Flag of New York.svg",
-  "north carolina":"Flag of North Carolina.svg",
-  "north dakota":"Flag of North Dakota.svg",
-  "ohio":"Flag of Ohio.svg",
-  "oklahoma":"Flag of Oklahoma.svg",
-  "oregon":"Flag of Oregon.svg",
-  "pennsylvania":"Flag of Pennsylvania.svg",
-  "rhode island":"Flag of Rhode Island.svg",
-  "south carolina":"Flag of South Carolina.svg",
-  "south dakota":"Flag of South Dakota.svg",
-  "tennessee":"Flag of Tennessee.svg",
-  "texas":"Flag of Texas.svg",
-  "utah":"Flag of Utah.svg",
-  "vermont":"Flag of Vermont.svg",
-  "virginia":"Flag of Virginia.svg",
-  "washington":"Flag of Washington.svg",
-  "west virginia":"Flag of West Virginia.svg",
-  "wisconsin":"Flag of Wisconsin.svg",
-  "wyoming":"Flag of Wyoming.svg"
-};
+    let url="";
 
-function normalizeFlagText(value) {
-  return String(value || "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
+    if(["united states","usa","us"].includes(c) && US_STATE_FLAGS[s]){
+        url = US_STATE_FLAGS[s];
+    }
 
-function commonsFilePath(filename) {
-  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(filename).replace(/%20/g, "_")}`;
-}
+    if(!url){
+        url = countryFlag(country);
+    }
 
-function countryFlagUrl(country) {
-  const code = COUNTRY_CODES[normalizeFlagText(country)];
-  return code ? `https://flagcdn.com/w80/${code}.png` : "";
-}
+    if(!url){
+        return `<div class="flag-placeholder">🌍</div>`;
+    }
 
-function getFlagImage(country, state) {
-  const c = String(country || "").replace(/\s+/g, " ").trim();
-  const st = String(state || "").replace(/\s+/g, " ").trim();
-
-  const countryKey = normalizeFlagText(c);
-  const stateKey = normalizeFlagText(st);
-  const fallback = countryFlagUrl(c);
-
-  let stateFlag = "";
-
-  if (["united states", "usa", "us"].includes(countryKey) && US_STATE_FLAG_FILES[stateKey]) {
-    stateFlag = commonsFilePath(US_STATE_FLAG_FILES[stateKey]);
-  } else if (st) {
-    stateFlag = commonsFilePath(`Flag of ${st}.svg`);
-  }
-
-  const url = stateFlag || fallback;
-
-  if (url) {
-    return `<img class="flag-img" src="${url}" alt="${escapeAttr(st || c)} flag" onerror="this.onerror=null;this.src='${fallback}';">`;
-  }
-
-  return `<div class="flag-placeholder">🌍</div>`;
+    return `<img class="flag-img"
+        src="${url}"
+        alt="${escapeAttr(state||country)}"
+        onerror="this.onerror=null;this.src='${countryFlag(country)}';">`;
 }
 
 function missionaryPopupHtml(m){const lang=getLanguage(m),pres=getPresidents(m);return `<div class="leaflet-mission-popup single-missionary-popup"><h2>${getTitle(getSex(m),getName(m),lang)}</h2><div class="card-divider"></div><div class="card-location-small">${getFlagImage(getCountry(m),getState(m))}<div><div class="card-mission">${escapeHtml(getMissionName(m)||"")}</div>${missionMetaHtml(m)}</div></div>${assignmentLinksHtml(m)}<div class="card-dates">${formatMissionDates(m)}</div>${pres?`<div class="card-presidents">${formatPresidents(pres)}</div>`:""}${spouseHtml(m)}</div>`;}
@@ -307,6 +206,7 @@ function openMarkerPopup(marker,group){if(currentPopup){currentPopup.remove();cu
 function bindMarkerPopup(marker,group){marker.missionaryGroup=group;const el=marker.getElement();el.addEventListener("mouseenter",()=>openMarkerPopup(marker,group));el.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openMarkerPopup(marker,group);});}
 function createMarkerIcon(group){const count=group.length,hasMale=group.some(m=>getSex(m)!=="Female"),hasFemale=group.some(m=>getSex(m)==="Female"),hasCurrent=group.some(isCurrentlyServing),hasInLaw=group.some(isInLaw);let color=getColor(getSex(group[0]));if(hasMale&&hasFemale)color="#7c3aed";let inner="";if(count>1)inner=`<span class="marker-number">${count}</span>`;const cls=["mission-marker",count>1?"duplicate-marker":"",hasCurrent?"current-marker":"",hasInLaw&&count===1?"heart-marker":"dot-marker"].join(" ");const wrapper=document.createElement("div");wrapper.className="custom-marker";wrapper.innerHTML=`<div class="${cls}" style="--marker-color:${color}">${inner}</div>`;return wrapper;}
 function clearMarkers(){allMarkers.forEach(m=>m.remove());allMarkers=[];}
+
 function getFilteredData(){return allMissionaries.filter(m=>matchesFamily(m)&&matchesSex(m)&&matchesCurrent(m)&&matchesInLaw(m)&&matchesSearch(m)&&matchesYears(m));}
 function matchesFamily(m){const s=document.getElementById("familyFilter").value;return s==="all"||normalize(getRelation(m)).includes(normalize(s));}
 function matchesSex(m){return getSex(m)==="Female"?document.getElementById("showSisters").checked:document.getElementById("showElders").checked;}
@@ -329,20 +229,16 @@ function preferredMissionaryForSearch(value){
   const q=normalize(value);
   if(!q)return null;
 
-  // Prioritize the missionary's own name, not spouse names, mission names, or country matches.
-  // This fixes searches like "Ivy" or "Whitney" where multiple assignments exist.
   const nameMatches=allMissionaries.filter(m=>normalize(getName(m)).includes(q)&&m.coords);
   if(nameMatches.length){
     const exactNameMatches=nameMatches.filter(m=>normalize(getName(m))===q);
     const candidates=exactNameMatches.length?exactNameMatches:nameMatches;
 
-    // If the search points to one person with multiple assignments, always open the original assignment first.
     const uniqueNames=Array.from(new Set(candidates.map(m=>normalize(getName(m))).filter(Boolean)));
     if(uniqueNames.length===1){
       return candidates.find(isOriginalAssignment)||candidates[0];
     }
 
-    // If the query is a first name and only one matching person starts with it, use that person.
     const startsWithMatches=candidates.filter(m=>normalize(getName(m)).startsWith(q));
     const startsWithNames=Array.from(new Set(startsWithMatches.map(m=>normalize(getName(m))).filter(Boolean)));
     if(startsWithNames.length===1){
@@ -356,7 +252,22 @@ function preferredMissionaryForSearch(value){
   if(names.size===1&&filtered.length){return filtered.find(isOriginalAssignment)||filtered[0];}
   return null;
 }
-function navigateSearchResult({clearSearch=false}={}){const search=document.getElementById("searchInput");const target=preferredMissionaryForSearch(search?search.value:activeSearch);if(!target)return false;if(clearSearch){activeSearch="";if(search)search.value="";drawMarkers();setTimeout(()=>jumpToMissionary(target),120);}else{setTimeout(()=>jumpToMissionary(target),120);}return true;}
+
+function navigateSearchResult({clearSearch=false}={}){
+  const search=document.getElementById("searchInput");
+  const target=preferredMissionaryForSearch(search?search.value:activeSearch);
+  if(!target)return false;
+  if(clearSearch){
+    activeSearch="";
+    if(search)search.value="";
+    drawMarkers();
+    setTimeout(()=>jumpToMissionary(target),120);
+  }else{
+    setTimeout(()=>jumpToMissionary(target),120);
+  }
+  return true;
+}
+
 function zoomToCountry(country){
   const key=normalize(country);
   const items=getFilteredData().filter(m=>normalize(getCountry(m))===key&&m.coords);
@@ -381,36 +292,39 @@ function zoomToCountry(country){
   map.fitBounds(bounds,{padding:{top:90,bottom:90,left:90,right:90},maxZoom:5,duration:1200});
 }
 
-function buildYearCheckboxes(){const box=document.getElementById("yearCheckboxes");const years=new Set();allMissionaries.forEach(m=>missionaryYears(m).forEach(y=>years.add(y)));box.innerHTML=Array.from(years).sort((a,b)=>b-a).map(y=>`<label class="year-option"><input type="checkbox" value="${y}"> ${y}</label>`).join("");box.querySelectorAll("input").forEach(input=>input.addEventListener("change",()=>{const y=Number(input.value);input.checked?selectedYears.add(y):selectedYears.delete(y);drawMarkers();}));}
-function buildSearchSuggestions(){const dl=document.getElementById("searchSuggestions");if(!dl)return;const values=new Set();allMissionaries.forEach(m=>[getName(m),getMissionName(m),getCountry(m),getState(m),getCity(m),getLanguage(m),getMissionType(m),getSpouse(m)].forEach(v=>{if(v)values.add(String(v).trim());}));dl.innerHTML=Array.from(values).sort((a,b)=>a.localeCompare(b)).slice(0,350).map(v=>`<option value="${escapeAttr(v)}"></option>`).join("");}
-function resetAllFilters(){activeSearch="";selectedYears.clear();const search=document.getElementById("searchInput");if(search)search.value="";document.querySelectorAll("#yearCheckboxes input").forEach(i=>i.checked=false);document.getElementById("familyFilter").value="all";document.getElementById("showElders").checked=true;document.getElementById("showSisters").checked=true;document.getElementById("showCurrent").checked=true;document.getElementById("showInLaws").checked=true;drawMarkers();}
-function setupControls(){
-  ["showElders","showSisters","showCurrent","showInLaws","familyFilter"].forEach(id=>document.getElementById(id).addEventListener("change",drawMarkers));
-  const searchInput=document.getElementById("searchInput");
-  searchInput.addEventListener("input",e=>{
-    activeSearch=e.target.value;
+function buildYearCheckboxes(){
+  const box=document.getElementById("yearCheckboxes");
+  const years=new Set();
+  allMissionaries.forEach(m=>missionaryYears(m).forEach(y=>years.add(y)));
+  box.innerHTML=Array.from(years).sort((a,b)=>b-a).map(y=>`<label class="year-option"><input type="checkbox" value="${y}"> ${y}</label>`).join("");
+  box.querySelectorAll("input").forEach(input=>input.addEventListener("change",()=>{
+    const y=Number(input.value);
+    input.checked?selectedYears.add(y):selectedYears.delete(y);
     drawMarkers();
-    clearTimeout(searchNavigationTimer);
-    searchNavigationTimer=setTimeout(()=>navigateSearchResult({clearSearch:true}),450);
-  });
-  searchInput.addEventListener("keydown",e=>{if(e.key==="Enter"){if(navigateSearchResult({clearSearch:true})){e.preventDefault();}}});
-  const clearYears=document.getElementById("clearYears");
-  if(clearYears)clearYears.addEventListener("click",()=>{selectedYears.clear();document.querySelectorAll("#yearCheckboxes input").forEach(i=>i.checked=false);drawMarkers();});
-  const clearAll=document.getElementById("clearAllFilters");
-  if(clearAll)clearAll.addEventListener("click",resetAllFilters);
-  document.getElementById("menuToggle").addEventListener("click",()=>{menuPanel.classList.remove("hidden-panel");menuToggle.style.display="none";});
-  document.getElementById("menuClose").addEventListener("click",()=>{menuPanel.classList.add("hidden-panel");menuToggle.style.display="block";});
-  document.getElementById("statsToggle").addEventListener("click",()=>{statsPanel.classList.remove("hidden-panel");statsToggle.style.display="none";});
-  document.getElementById("statsClose").addEventListener("click",()=>{statsPanel.classList.add("hidden-panel");statsToggle.style.display="block";});
-  const isPhone=window.matchMedia("(max-width: 700px)").matches;
-  if(isPhone){menuPanel.classList.add("hidden-panel");statsPanel.classList.add("hidden-panel");menuToggle.style.display="block";statsToggle.style.display="block";}else{menuToggle.style.display="none";statsToggle.style.display="none";}
-  document.addEventListener("click",e=>{
-    const link=e.target.closest(".mission-jump-link");
-    if(link){e.preventDefault();e.stopPropagation();jumpToMissionary(findMissionaryFromDataset(link.dataset));return;}
-    const chip=e.target.closest(".country-chip");
-    if(chip){selectedCountryForStats=chip.dataset.country||"";updateStats(getFilteredData());zoomToCountry(selectedCountryForStats);return;}
-  });
-  map.on("click",()=>{hideDetailPreview();if(currentPopup){currentPopup.remove();currentPopup=null;}});
+  }));
 }
-async function buildMap(){const missionaries=await loadSheet(MISSIONARY_SHEET_NAME);const coordinates=await loadSheet(COORDINATES_SHEET_NAME);const lookup={};coordinates.forEach(r=>{const mission=getMissionName(r);const lat=Number(getValue(r,["Latitude","Lat"]));const lng=Number(getValue(r,["Longitude","Long","Lng"]));if(mission&&!isNaN(lat)&&!isNaN(lng))lookup[normalize(mission)]={lat,lng};});allMissionaries=missionaries.map(m=>{const mission=getMissionName(m);const coords=lookup[normalize(mission)]||null;if(!coords)console.warn("No coordinates found for mission:",mission);return {...m,coords};});buildYearCheckboxes();buildSearchSuggestions();setupControls();drawMarkers();}
-buildMap();
+
+function buildSearchSuggestions(){
+  const dl=document.getElementById("searchSuggestions");
+  if(!dl)return;
+  const values=new Set();
+  allMissionaries.forEach(m=>[getName(m),getMissionName(m),getCountry(m),getState(m),getCity(m),getLanguage(m),getMissionType(m),getSpouse(m)].forEach(v=>{
+    if(v)values.add(String(v).trim());
+  }));
+  dl.innerHTML=Array.from(values).sort((a,b)=>a.localeCompare(b)).slice(0,350).map(v=>`<option value="${escapeAttr(v)}"></option>`).join("");
+}
+
+function resetAllFilters(){
+  activeSearch="";
+  selectedYears.clear();
+  const search=document.getElementById("searchInput");
+  if(search)search.value="";
+  document.querySelectorAll("#yearCheckboxes input").forEach(i=>i.checked=false);
+  document.getElementById("familyFilter").value="all";
+  document.getElementById("showElders").checked=true;
+  document.getElementById("showSisters").checked=true;
+  document.getElementById("showCurrent").checked=true;
+  document.getElementById("showInLaws").checked=true;
+  drawMarkers();
+}
+
